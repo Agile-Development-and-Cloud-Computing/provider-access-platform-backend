@@ -10,6 +10,7 @@ public class User {
     @Id
     private String username;
     private String password;
+    private String userType;
 
     // Constructors, getters, setters, etc.
 
@@ -21,6 +22,15 @@ public class User {
         this.password = password;
     }
 
+    public String getUserType() {
+        return userType;
+    }
+
+    public void setUserType(String userType) {
+        this.userType = userType;
+    }
+
+    ;
     public String getUsername() {
         return username;
     }

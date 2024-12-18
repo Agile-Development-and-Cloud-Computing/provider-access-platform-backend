@@ -1,4 +1,4 @@
-package com.fuas.providers_access_platform.model;
+package com.fuas.providers_access_platform.dto;
 
 public class LoginRequest {
     private String username;
