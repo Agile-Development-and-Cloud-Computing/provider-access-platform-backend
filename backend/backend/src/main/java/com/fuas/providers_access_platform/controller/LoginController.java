@@ -18,11 +18,8 @@ public class LoginController {
     @Autowired
     private LoginService loginService;
 
-
-
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> processLogin(@RequestBody LoginRequest loginRequest) {
-        System.out.println("LoginRequest: " + loginRequest);
         Map<String, String> response = new HashMap<>();
         User user = loginService.authenticate(loginRequest.getUsername(), loginRequest.getPassword());
         if (user != null) {

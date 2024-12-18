@@ -1,11 +1,20 @@
 package com.fuas.providers_access_platform.model;
 
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+
+@Entity
 public class User {
 
+    @Id
     private String username;
     private String password;
 
     // Constructors, getters, setters, etc.
+
+    // Constructors
+    public User() {}
 
     public User(String username, String password) {
         this.username = username;
