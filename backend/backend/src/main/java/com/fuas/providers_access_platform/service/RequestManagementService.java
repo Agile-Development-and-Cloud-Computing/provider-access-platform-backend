@@ -55,4 +55,16 @@ public class RequestManagementService {
         // Convert the aggregated data to a list and return
         return new ArrayList<>(aggregatedData.values());
     }
+
+    public void updateOfferResponse(Long offerId, Boolean isAccepted) {
+        // Fetch the record by offerId
+        RoleOffer offer = roleOfferRepository.findById(offerId)
+                .orElseThrow(() -> new IllegalArgumentException("Offer with ID " + offerId + " not found."));
+
+        // Update the isAccepted field
+        offer.setIsAccepted(isAccepted);
+
+        // Save the updated offer back to the database
+        roleOfferRepository.save(offer);
+    }
 }
