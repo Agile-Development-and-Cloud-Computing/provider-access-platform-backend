@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class RequestManagementService {
@@ -19,41 +20,48 @@ public class RequestManagementService {
     @Autowired
     private RoleOfferRepository roleOfferRepository;
 
-    public List<AgreementOfferResponse> getAgreementOffers() {
+
+    public List<AgreementOfferResponse> getAllOffersGrouped() {
         // Fetch all role offers from the database
         List<RoleOffer> roleOffers = roleOfferRepository.findAll();
 
-        // Group and aggregate the data
-        Map<String, AgreementOfferResponse> aggregatedData = new HashMap<>();
+        // Group by roleName, masterAgreementTypeName, and domainId
+        Map<String, List<RoleOffer>> groupedOffers = roleOffers.stream().collect(Collectors.groupingBy(
+                offer -> offer.getRoleName() + "|" + offer.getMasterAgreementTypeName() + "|" + offer.getDomainId()
+        ));
 
-        for (RoleOffer offer : roleOffers) {
-            String key = offer.getRoleName() + "-" + offer.getMasterAgreementTypeName() + "-" + offer.getDomainId();
+        // Transform the grouped data into RoleOfferResponseDTO
+        List<AgreementOfferResponse> responseList = new ArrayList<>();
 
-            // If the group does not exist, create a new entry
-            aggregatedData.putIfAbsent(key, new AgreementOfferResponse(
-                    offer.getRoleName(),
-                    offer.getExperienceLevel(),
-                    offer.getTechnologiesCatalog(),
-                    offer.getDomainId(),
-                    offer.getDomainName(),
-                    offer.getMasterAgreementTypeId(),
-                    offer.getMasterAgreementTypeName(),
-                    new ArrayList<>()
-            ));
+        for (Map.Entry<String, List<RoleOffer>> entry : groupedOffers.entrySet()) {
+            List<RoleOffer> offers = entry.getValue();
 
-            // Add provider information to the existing group
-            AgreementOfferResponse response = aggregatedData.get(key);
-            response.getProvider().add(new ProviderResponse(
-                    offer.getId(),
-                    offer.getProvider(),
-                    offer.getQuotePrice(),
-                    offer.getIsAccepted(),
-                    offer.getOfferCycle()
-            ));
+            RoleOffer firstOffer = offers.get(0);
+            AgreementOfferResponse response = new AgreementOfferResponse();
+            response.setRoleName(firstOffer.getRoleName());
+            response.setExperienceLevel(firstOffer.getExperienceLevel());
+            response.setTechnologiesCatalog(firstOffer.getTechnologiesCatalog());
+            response.setDomainId(firstOffer.getDomainId());
+            response.setDomainName(firstOffer.getDomainName());
+            response.setMasterAgreementTypeId(firstOffer.getMasterAgreementTypeId());
+            response.setMasterAgreementTypeName(firstOffer.getMasterAgreementTypeName());
+
+            // Map providers
+            List<ProviderResponse> providers = offers.stream().map(offer -> {
+                ProviderResponse provider = new ProviderResponse();
+                provider.setOfferId(offer.getId());
+                provider.setName(offer.getProvider());
+                provider.setQuotePrice(offer.getQuotePrice());
+                provider.setIsAccepted(offer.getIsAccepted());
+                provider.setCycle(offer.getOfferCycle());
+                return provider;
+            }).collect(Collectors.toList());
+
+            response.setProvider(providers);
+            responseList.add(response);
         }
 
-        // Convert the aggregated data to a list and return
-        return new ArrayList<>(aggregatedData.values());
+        return responseList;
     }
 
     public void updateOfferResponse(Long offerId, Boolean isAccepted) {

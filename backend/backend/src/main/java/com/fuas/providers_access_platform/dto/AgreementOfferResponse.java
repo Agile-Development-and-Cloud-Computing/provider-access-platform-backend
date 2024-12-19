@@ -15,16 +15,6 @@ public class AgreementOfferResponse {
 
     // Constructor, Getters, and Setters
 
-    public AgreementOfferResponse(String roleName, String experienceLevel, String technologiesCatalog, Integer domainId, String domainName, Integer masterAgreementTypeId, String masterAgreementTypeName, List<ProviderResponse> provider) {
-        this.roleName = roleName;
-        this.experienceLevel = experienceLevel;
-        this.technologiesCatalog = technologiesCatalog;
-        this.domainId = domainId;
-        this.domainName = domainName;
-        this.masterAgreementTypeId = masterAgreementTypeId;
-        this.masterAgreementTypeName = masterAgreementTypeName;
-        this.provider = provider;
-    }
 
     public String getRoleName() {
         return roleName;

@@ -10,13 +10,6 @@ public class ProviderResponse {
 
     // Constructor, Getters, and Setters
 
-    public ProviderResponse(Long offerId, String name, Double quotePrice, Boolean isAccepted, String cycle) {
-        this.offerId = offerId;
-        this.name = name;
-        this.quotePrice = quotePrice;
-        this.isAccepted = isAccepted;
-        this.cycle = cycle;
-    }
 
     public Long getOfferId() {
         return offerId;
@@ -42,11 +35,11 @@ public class ProviderResponse {
         this.quotePrice = quotePrice;
     }
 
-    public Boolean getAccepted() {
+    public Boolean getIsAccepted() {
         return isAccepted;
     }
 
-    public void setAccepted(Boolean accepted) {
+    public void setIsAccepted(Boolean accepted) {
         isAccepted = accepted;
     }
 
