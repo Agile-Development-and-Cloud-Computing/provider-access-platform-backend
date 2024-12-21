@@ -18,10 +18,8 @@ public class CommonResponse<T> {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         this.timestamp = LocalDateTime.now().format(formatter);
         this.data = data;
-
-
-
     }
+
 
     public String getTimestamp() {
         return timestamp;
