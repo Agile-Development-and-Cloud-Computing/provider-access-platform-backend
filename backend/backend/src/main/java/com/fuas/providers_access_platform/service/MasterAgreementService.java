@@ -1,4 +1,6 @@
 package com.fuas.providers_access_platform.service;
+import com.fuas.providers_access_platform.dto.CommonResponse;
+import com.fuas.providers_access_platform.dto.MasterAgreementRequest;
 import com.fuas.providers_access_platform.dto.MasterAgreementResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -51,5 +53,37 @@ public class MasterAgreementService {
         });
     }
 
+    public CommonResponse createOffer(MasterAgreementRequest masterAgreementRequest) {
+        // Validate input (you can add more validation as needed)
+        if (masterAgreementRequest.getMasterAgreementTypeId() == null || masterAgreementRequest.getProvider() == null) {
+            return new CommonResponse(false, "Invalid data", null);
+        }
 
+        // Construct the SQL query for inserting an offer
+        String sql = "INSERT INTO role_offer (master_agreement_type_id, master_agreement_type_name, " +
+                "role_name, experience_level, technologies_catalog, domain_id, domain_name, offer_cycle, " +
+                "provider, quote_price, is_accepted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try {
+            // Execute the query to insert data
+            jdbcTemplate.update(sql,
+                    masterAgreementRequest.getMasterAgreementTypeId(),
+                    masterAgreementRequest.getMasterAgreementTypeName(),
+                    masterAgreementRequest.getRoleName(),
+                    masterAgreementRequest.getExperienceLevel(),
+                    masterAgreementRequest.getTechnologiesCatalog(),
+                    masterAgreementRequest.getDomainId(),
+                    masterAgreementRequest.getDomainName(),
+                    masterAgreementRequest.getOfferCycle(),
+                    masterAgreementRequest.getProvider(),
+                    masterAgreementRequest.getQuotePrice(),
+                    false // Initially, the offer is not accepted
+            );
+            // Return success response
+            return new CommonResponse(true, "Offer successfully created", null);
+        } catch (Exception e) {
+            // Handle any errors during the DB operation
+            return new CommonResponse(false, "Error creating the offer: " + e.getMessage(), null);
+        }
+    }
 }

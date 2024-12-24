@@ -2,6 +2,7 @@ package com.fuas.providers_access_platform.controller;
 
 
 import com.fuas.providers_access_platform.dto.CommonResponse;
+import com.fuas.providers_access_platform.dto.MasterAgreementRequest;
 import com.fuas.providers_access_platform.dto.MasterAgreementResponse;
 import com.fuas.providers_access_platform.dto.ProviderRequest;
 import com.fuas.providers_access_platform.service.MasterAgreementService;
@@ -55,4 +56,10 @@ public class ProviderManagementController {
         return new CommonResponse(true, "Offers fetched successfully", masterAgreements);
     }
 
+    @PostMapping("/createOffer")
+    public CommonResponse createOffer(@RequestBody MasterAgreementRequest masterAgreementRequest) {
+        // Call service to handle the logic
+        CommonResponse response = masterAgreementService.createOffer(masterAgreementRequest);
+        return response;
+    }
 }
