@@ -2,6 +2,7 @@ package com.fuas.providers_access_platform.service;
 
 
 import com.fuas.providers_access_platform.dto.CommonResponse;
+import com.fuas.providers_access_platform.dto.EmployeeResponse;
 import com.fuas.providers_access_platform.model.Employee;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -105,5 +106,35 @@ public class EmployeeService {
         jdbcTemplate.update(insertQuery, employeeRequest.getServiceRequestId(), employeeRequest.getEmployeeId(), employeeRequest.getResumeUrl());
 
         return new CommonResponse (true, "Profile uploaded successfully", null);
+    }
+
+
+    public CommonResponse <List <EmployeeResponse>> getSuggestions(String knowledgeKeyword) {
+        String query = """
+        SELECT 
+            e.employee_id AS employee_id, 
+            e.employee_name AS employee_name, 
+            e.skills AS knowledge, 
+            e.experience_level AS experience, 
+            e.skills AS skills
+        FROM employees e
+        WHERE e.skills LIKE ?
+        ORDER BY e.experience_level DESC
+        """;
+
+        List<EmployeeResponse> employeeSuggestions = jdbcTemplate.query(
+                query,
+                new Object[]{"%" + knowledgeKeyword + "%"},
+                (rs, rowNum) -> new EmployeeResponse(
+                        rs.getInt("employee_id"),
+                        rs.getString("employee_name"),
+                        rs.getString("knowledge"),
+                        rs.getString("experience"),
+                        rs.getString("skills")
+                )
+        );
+
+        // Wrap the response in CommonResponse format
+        return new CommonResponse<>(true, "Employee suggestions fetched successfully", employeeSuggestions);
     }
 }
