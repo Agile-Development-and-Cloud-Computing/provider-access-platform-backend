@@ -2,10 +2,12 @@ package com.fuas.providers_access_platform.controller;
 
 
 import com.fuas.providers_access_platform.dto.AgreementOfferResponse;
+import com.fuas.providers_access_platform.dto.BidRequest;
 import com.fuas.providers_access_platform.dto.CommonResponse;
 import com.fuas.providers_access_platform.model.RoleOffer;
 import com.fuas.providers_access_platform.service.RequestManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,4 +53,11 @@ public class RequestManagementController {
                 "message", "Response Posted successfully"
         ));
     }
+
+    @PostMapping("/bid/place")
+    public ResponseEntity<CommonResponse> placeBid(@RequestBody BidRequest bidRequest) {
+        CommonResponse response = requestManagementService.placeBid(bidRequest);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
 }

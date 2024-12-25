@@ -43,4 +43,11 @@ public class EmployeeController {
         CommonResponse response = employeeService.removeEmployee(employeeId);
         return response;
     }
+
+
+    @PostMapping("/upload")
+    public CommonResponse uploadEmployeeProfile( @RequestBody Employee employeeRequest) {
+        CommonResponse response = employeeService.uploadProfile(employeeRequest);
+        return response;
+    }
 }

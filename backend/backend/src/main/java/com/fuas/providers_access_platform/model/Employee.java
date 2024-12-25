@@ -8,6 +8,8 @@ public class Employee {
     private String experienceLevel;
     private String skills;  // Could be a comma-separated list of technologies
     private Integer providerId;
+    private Integer serviceRequestId;
+    private String resumeUrl;
 
     public Integer getEmployeeId() {
         return employeeId;
@@ -57,6 +59,22 @@ public class Employee {
         this.providerId = providerId;
     }
 
+    public Integer getServiceRequestId() {
+        return serviceRequestId;
+    }
+
+    public void setServiceRequestId(Integer serviceRequestId) {
+        this.serviceRequestId = serviceRequestId;
+    }
+
+    public String getResumeUrl() {
+        return resumeUrl;
+    }
+
+    public void setResumeUrl(String resumeUrl) {
+        this.resumeUrl = resumeUrl;
+    }
+
     @Override
     public String toString() {
         return "Employee{" +
@@ -66,6 +84,8 @@ public class Employee {
                 ", experienceLevel='" + experienceLevel + '\'' +
                 ", skills='" + skills + '\'' +
                 ", providerId=" + providerId +
+                ", serviceRequestId=" + serviceRequestId +
+                ", resumeUrl='" + resumeUrl + '\'' +
                 '}';
     }
 }

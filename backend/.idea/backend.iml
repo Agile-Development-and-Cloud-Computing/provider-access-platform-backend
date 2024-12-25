@@ -3,4 +3,11 @@
   <component name="AdditionalModuleElements">
     <content url="file://$MODULE_DIR$" />
   </component>
+  <component name="FacetManager">
+    <facet type="azure" name="Azure">
+      <configuration>
+        <option name="dotAzurePath" value="$MODULE_DIR$/backend/.azure" />
+      </configuration>
+    </facet>
+  </component>
 </module>

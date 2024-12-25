@@ -2,10 +2,13 @@ package com.fuas.providers_access_platform.service;
 
 
 import com.fuas.providers_access_platform.dto.AgreementOfferResponse;
+import com.fuas.providers_access_platform.dto.BidRequest;
+import com.fuas.providers_access_platform.dto.CommonResponse;
 import com.fuas.providers_access_platform.dto.ProviderResponse;
 import com.fuas.providers_access_platform.model.RoleOffer;
 import com.fuas.providers_access_platform.repository.RoleOfferRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -19,6 +22,8 @@ public class RequestManagementService {
 
     @Autowired
     private RoleOfferRepository roleOfferRepository;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
 
     public List<AgreementOfferResponse> getAllOffersGrouped() {
@@ -74,5 +79,15 @@ public class RequestManagementService {
 
         // Save the updated offer back to the database
         roleOfferRepository.save(offer);
+    }
+
+    public CommonResponse placeBid(BidRequest bidRequest) {
+        try {
+            String query = "INSERT INTO bids (service_id, provider_id, bid_amount) VALUES (?, ?, ?)";
+            jdbcTemplate.update(query, bidRequest.getServiceId(), bidRequest.getProviderId(), bidRequest.getBidAmount());
+            return new CommonResponse<>(true, "Bid placed successfully", null);
+        } catch (Exception e) {
+            return new CommonResponse<>(false, "Failed to place bid: " + e.getMessage(), null);
+        }
     }
 }

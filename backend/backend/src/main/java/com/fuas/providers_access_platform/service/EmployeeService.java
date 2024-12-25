@@ -80,5 +80,30 @@ public class EmployeeService {
         } catch (Exception e) {
             return new CommonResponse(false, "Error removing employee: " + e.getMessage(), null);
         }
+
+    }
+
+
+    public CommonResponse uploadProfile(Employee employeeRequest) {
+        // Validate the service request and employee existence
+        String checkQueryServiceRequest = "SELECT COUNT(*) FROM service_requests WHERE service_id = ?";
+        Integer serviceRequestCount = jdbcTemplate.queryForObject(checkQueryServiceRequest, Integer.class, employeeRequest.getServiceRequestId());
+
+        if (serviceRequestCount == null || serviceRequestCount == 0) {
+            return new CommonResponse (false, "Invalid service request ID", null);
+        }
+
+        String checkQueryEmployee = "SELECT COUNT(*) FROM employees WHERE employee_id = ?";
+        Integer employeeCount = jdbcTemplate.queryForObject(checkQueryEmployee, Integer.class, employeeRequest.getEmployeeId());
+
+        if (employeeCount == null || employeeCount == 0) {
+            return new CommonResponse (false, "Invalid employee ID", null);
+        }
+
+        // Insert the uploaded profile
+        String insertQuery = "INSERT INTO employee_profiles (service_request_id, employee_id, resume_url) VALUES (?, ?, ?)";
+        jdbcTemplate.update(insertQuery, employeeRequest.getServiceRequestId(), employeeRequest.getEmployeeId(), employeeRequest.getResumeUrl());
+
+        return new CommonResponse (true, "Profile uploaded successfully", null);
     }
 }
