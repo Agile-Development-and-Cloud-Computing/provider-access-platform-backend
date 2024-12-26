@@ -60,4 +60,16 @@ public class RequestManagementController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PostMapping("/accept-order")
+    public ResponseEntity<CommonResponse> acceptOrder(@RequestBody BidRequest request) {
+        try {
+            // Call the service to process the order acceptance
+            CommonResponse response = requestManagementService.acceptOrder(request.getServiceId(), request.getEmployeeId());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            // Handle error
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new CommonResponse(false, "Error accepting the order", null));
+        }
+    }
 }

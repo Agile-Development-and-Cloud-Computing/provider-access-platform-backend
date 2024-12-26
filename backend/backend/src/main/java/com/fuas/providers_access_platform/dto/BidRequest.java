@@ -5,6 +5,15 @@ public class BidRequest {
     private int serviceId;
     private int providerId;
     private double bidAmount;
+    private Integer employeeId;
+
+    public Integer getEmployeeId() {
+        return employeeId;
+    }
+
+    public void setEmployeeId(Integer employeeId) {
+        this.employeeId = employeeId;
+    }
 
     public int getServiceId() {
         return serviceId;
@@ -36,6 +45,7 @@ public class BidRequest {
                 "serviceId=" + serviceId +
                 ", providerId=" + providerId +
                 ", bidAmount=" + bidAmount +
+                ", employeeId=" + employeeId +
                 '}';
     }
 }

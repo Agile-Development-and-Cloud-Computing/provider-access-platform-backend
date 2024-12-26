@@ -88,7 +88,7 @@ public class EmployeeService {
     public CommonResponse uploadProfile(Employee employeeRequest) {
         // Validate the service request and employee existence
         String checkQueryServiceRequest = "SELECT COUNT(*) FROM service_requests WHERE service_id = ?";
-        Integer serviceRequestCount = jdbcTemplate.queryForObject(checkQueryServiceRequest, Integer.class, employeeRequest.getServiceRequestId());
+        Integer serviceRequestCount = jdbcTemplate.queryForObject(checkQueryServiceRequest, Integer.class, employeeRequest.getServiceId());
 
         if (serviceRequestCount == null || serviceRequestCount == 0) {
             return new CommonResponse (false, "Invalid service request ID", null);
@@ -103,7 +103,7 @@ public class EmployeeService {
 
         // Insert the uploaded profile
         String insertQuery = "INSERT INTO employee_profiles (service_request_id, employee_id, resume_url) VALUES (?, ?, ?)";
-        jdbcTemplate.update(insertQuery, employeeRequest.getServiceRequestId(), employeeRequest.getEmployeeId(), employeeRequest.getResumeUrl());
+        jdbcTemplate.update(insertQuery, employeeRequest.getServiceId(), employeeRequest.getEmployeeId(), employeeRequest.getResumeUrl());
 
         return new CommonResponse (true, "Profile uploaded successfully", null);
     }
