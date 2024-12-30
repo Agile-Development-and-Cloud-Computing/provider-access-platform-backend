@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api")
 
@@ -22,11 +24,11 @@ public class LoginController {
     private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public ResponseEntity<CommonResponse<LoginResponse>> processLogin(@RequestBody LoginRequest inputPayload) {
+    public ResponseEntity<CommonResponse<Map<String, Object>>> processLogin(@RequestBody LoginRequest inputPayload) {
 
 
         // Call the simplified authenticate method in the LoginService
-        CommonResponse<LoginResponse> response = loginService.simplifiedAuthenticate(inputPayload, logger);
+        CommonResponse<Map<String, Object>> response = loginService.simplifiedAuthenticate(inputPayload, logger);
 
         // Return the response directly
         if (response.isSuccess()) {

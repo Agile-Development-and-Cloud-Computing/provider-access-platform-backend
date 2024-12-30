@@ -52,7 +52,7 @@ public class ProviderManagementController {
 
     @GetMapping("master-agreements")
     public CommonResponse getMasterAgreementsWithRoleOffer() {
-        List<MasterAgreementResponse> masterAgreements = masterAgreementService.getMasterAgreementsWithRoleOffer();
+        List<Map<String, Object>> masterAgreements = masterAgreementService.getMasterAgreementsWithRoleOffer();
         return new CommonResponse(true, "Offers fetched successfully", masterAgreements);
     }
 

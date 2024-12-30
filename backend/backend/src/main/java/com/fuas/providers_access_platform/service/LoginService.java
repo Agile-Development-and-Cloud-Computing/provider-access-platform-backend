@@ -7,6 +7,9 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 
 @Service
 public class LoginService {
@@ -14,7 +17,7 @@ public class LoginService {
     @Autowired
     private UserRepository userRepository;
 
-    public CommonResponse<LoginResponse> simplifiedAuthenticate(LoginRequest inputPayload, Logger logger) {
+    public CommonResponse<Map<String, Object>> simplifiedAuthenticate(LoginRequest inputPayload, Logger logger) {
         // Log the incoming request if needed
         logger.info("Attempting to authenticate user: {}", inputPayload.getUsername());
 
@@ -24,8 +27,9 @@ public class LoginService {
         // Check if user is found and password matches
         if (user != null && user.getPassword().equals(inputPayload.getPassword())) {
             // Authentication successful, return user data in CommonResponse
-            LoginResponse loginResponse = new LoginResponse(user.getUserType());
-            return new CommonResponse<>(true, "Login is successful", loginResponse);
+            Map<String, Object> response = new LinkedHashMap<>();
+            response.put("userType",user.getUserType());
+            return new CommonResponse<>(true, "Login is successful",response);
         } else {
             // Authentication failed, return error message
             return new CommonResponse<>(false, "Invalid username or password", null);
