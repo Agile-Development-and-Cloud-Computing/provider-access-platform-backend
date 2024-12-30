@@ -9,7 +9,10 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class EmployeeService {
@@ -18,17 +21,17 @@ public class EmployeeService {
     private JdbcTemplate jdbcTemplate;
 
     // Method to get the list of employees for a specific provider
-    public List<Employee> getEmployees(Integer providerId) {
+    public List<Map<String, Object>> getEmployees(Integer providerId) {
         String sql = "SELECT employee_id, employee_name, role, experience_level, skills " +
                 "FROM employees WHERE provider_id = ?";
 
         return jdbcTemplate.query(sql, new Object[]{providerId}, (rs, rowNum) -> {
-            Employee employee = new Employee();
-            employee.setEmployeeId(rs.getInt("employee_id"));
-            employee.setEmployeeName(rs.getString("employee_name"));
-            employee.setRole(rs.getString("role"));
-            employee.setExperienceLevel(rs.getString("experience_level"));
-            employee.setSkills(rs.getString("skills"));
+            Map<String, Object> employee = new LinkedHashMap<>();
+            employee.put("employeeId", rs.getInt("employee_id"));
+            employee.put("employeeName", rs.getString("employee_name"));
+            employee.put("role", rs.getString("role"));
+            employee.put("experienceLevel", rs.getString("experience_level"));
+            employee.put("skills", rs.getString("skills"));
             return employee;
         });
     }

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/employees")
@@ -20,7 +21,7 @@ public class EmployeeController {
     // API to get the list of employees
     @GetMapping("/{providerId}")
     public CommonResponse getEmployees(@PathVariable("providerId") Integer providerId) {
-        List<Employee> employees = employeeService.getEmployees(providerId);
+        List<Map<String, Object>> employees = employeeService.getEmployees(providerId);
         return new CommonResponse(true, "Employees retrieved successfully", employees);
     }
 
