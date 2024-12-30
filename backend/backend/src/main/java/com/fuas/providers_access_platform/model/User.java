@@ -1,5 +1,5 @@
 package com.fuas.providers_access_platform.model;
-
+import jakarta.persistence.*;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -11,6 +11,8 @@ public class User {
     private String username;
     private String password;
     private String userType;
+    private String email;
+    private Long id;
 
     // Constructors, getters, setters, etc.
 
@@ -47,4 +49,15 @@ public class User {
         this.password = password;
     }
 
+    public String getEmail() { return email;}
+
+    public String setEmail(String email){ this.email = email;
+        return email;
+    }
+
+    public Long getId() { return id;}
+
+    public Long setId(Long id) {this.id = id;
+        return id;
+    }
 }
