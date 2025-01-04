@@ -1,10 +1,8 @@
 package com.fuas.providers_access_platform.controller;
 
 
-import com.fuas.providers_access_platform.dto.AgreementOfferResponse;
 import com.fuas.providers_access_platform.dto.BidRequest;
 import com.fuas.providers_access_platform.dto.CommonResponse;
-import com.fuas.providers_access_platform.model.RoleOffer;
 import com.fuas.providers_access_platform.service.RequestManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,12 +24,12 @@ public class RequestManagementController {
 
 
     @GetMapping("/get-all-offers-grouped")
-    public ResponseEntity<CommonResponse<List<AgreementOfferResponse>>> getAllOffersGrouped() {
+    public ResponseEntity<CommonResponse<List<Map<String,Object>>>> getAllOffersGrouped() {
         // Fetch grouped offers from service
-        List<AgreementOfferResponse> groupedOffers = requestManagementService.getAllOffersGrouped();
+        List<Map<String ,Object>> groupedOffers = requestManagementService.getAllOffersGrouped();
 
         // Build response
-        CommonResponse<List<AgreementOfferResponse>> response = new CommonResponse<>();
+        CommonResponse<List<Map<String,Object>>> response = new CommonResponse<>();
         response.setSuccess(true);
         response.setMessage("Data retrieved successfully");
         response.setTimestamp(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));

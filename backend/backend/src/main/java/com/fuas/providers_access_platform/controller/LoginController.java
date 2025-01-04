@@ -2,13 +2,11 @@ package com.fuas.providers_access_platform.controller;
 
 import com.fuas.providers_access_platform.dto.CommonResponse;
 import com.fuas.providers_access_platform.dto.LoginRequest;
-import com.fuas.providers_access_platform.dto.LoginResponse;
 import com.fuas.providers_access_platform.service.LoginService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -44,7 +42,7 @@ public class LoginController {
 
     @PostMapping("/register")
     public ResponseEntity<CommonResponse> registerUser(@RequestBody LoginRequest inputPayload) {
-        CommonResponse<LoginResponse> response = loginService.registerUser(inputPayload);
+        CommonResponse response = loginService.registerUser(inputPayload);
         if (response.isSuccess()) {
             System.out.println("Success");
             return ResponseEntity.ok(response);

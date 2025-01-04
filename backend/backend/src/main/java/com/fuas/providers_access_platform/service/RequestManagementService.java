@@ -1,10 +1,8 @@
 package com.fuas.providers_access_platform.service;
 
 
-import com.fuas.providers_access_platform.dto.AgreementOfferResponse;
 import com.fuas.providers_access_platform.dto.BidRequest;
 import com.fuas.providers_access_platform.dto.CommonResponse;
-import com.fuas.providers_access_platform.dto.ProviderResponse;
 import com.fuas.providers_access_platform.model.Employee;
 import com.fuas.providers_access_platform.model.RoleOffer;
 import com.fuas.providers_access_platform.repository.RoleOfferRepository;
@@ -12,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +24,7 @@ public class RequestManagementService {
     private JdbcTemplate jdbcTemplate;
 
 
-    public List<AgreementOfferResponse> getAllOffersGrouped() {
+    public List<Map<String,Object>> getAllOffersGrouped() {
         // Fetch all role offers from the database
         List<RoleOffer> roleOffers = roleOfferRepository.findAll();
 
@@ -37,37 +34,34 @@ public class RequestManagementService {
         ));
 
         // Transform the grouped data into RoleOfferResponseDTO
-        List<AgreementOfferResponse> responseList = new ArrayList<>();
-
-        for (Map.Entry<String, List<RoleOffer>> entry : groupedOffers.entrySet()) {
-            List<RoleOffer> offers = entry.getValue();
-
+        // Transform grouped data into List<Map<String, Object>>
+        return groupedOffers.values().stream().map(offers -> {
             RoleOffer firstOffer = offers.get(0);
-            AgreementOfferResponse response = new AgreementOfferResponse();
-            response.setRoleName(firstOffer.getRoleName());
-            response.setExperienceLevel(firstOffer.getExperienceLevel());
-            response.setTechnologiesCatalog(firstOffer.getTechnologiesCatalog());
-            response.setDomainId(firstOffer.getDomainId());
-            response.setDomainName(firstOffer.getDomainName());
-            response.setMasterAgreementTypeId(firstOffer.getMasterAgreementTypeId());
-            response.setMasterAgreementTypeName(firstOffer.getMasterAgreementTypeName());
 
-            // Map providers
-            List<ProviderResponse> providers = offers.stream().map(offer -> {
-                ProviderResponse provider = new ProviderResponse();
-                provider.setOfferId(offer.getId());
-                provider.setName(offer.getProvider());
-                provider.setQuotePrice(offer.getQuotePrice());
-                provider.setIsAccepted(offer.getIsAccepted());
-                provider.setCycle(offer.getOfferCycle());
+            // Create a map for the main response object
+            Map<String, Object> response = new HashMap<>();
+            response.put("roleName", firstOffer.getRoleName());
+            response.put("experienceLevel", firstOffer.getExperienceLevel());
+            response.put("technologiesCatalog", firstOffer.getTechnologiesCatalog());
+            response.put("domainId", firstOffer.getDomainId());
+            response.put("domainName", firstOffer.getDomainName());
+            response.put("masterAgreementTypeId", firstOffer.getMasterAgreementTypeId());
+            response.put("masterAgreementTypeName", firstOffer.getMasterAgreementTypeName());
+
+            // Map providers as a list of maps
+            List<Map<String, Object>> providers = offers.stream().map(offer -> {
+                Map<String, Object> provider = new HashMap<>();
+                provider.put("offerId", offer.getId());
+                provider.put("providerName", offer.getProvider());
+                provider.put("quotePrice", offer.getQuotePrice());
+                provider.put("isAccepted", offer.getIsAccepted());
+                provider.put("offerCycle", offer.getOfferCycle());
                 return provider;
             }).collect(Collectors.toList());
 
-            response.setProvider(providers);
-            responseList.add(response);
-        }
-
-        return responseList;
+            response.put("providers", providers);
+            return response;
+        }).collect(Collectors.toList());
     }
 
     public void updateOfferResponse(Long offerId, Boolean isAccepted) {
