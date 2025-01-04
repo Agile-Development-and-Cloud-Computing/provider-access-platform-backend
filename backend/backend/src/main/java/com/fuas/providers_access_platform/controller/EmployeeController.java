@@ -55,7 +55,7 @@ public class EmployeeController {
 
 
     @GetMapping("/suggestions")
-    public CommonResponse <List<EmployeeResponse>> getEmployeeSuggestions(@RequestParam String knowledgeKeyword) {
+    public CommonResponse <List<Map<String, Object>>> getEmployeeSuggestions(@RequestParam String knowledgeKeyword) {
         return employeeService.getSuggestions(knowledgeKeyword);
     }
 }

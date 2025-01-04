@@ -112,7 +112,7 @@ public class EmployeeService {
     }
 
 
-    public CommonResponse <List <EmployeeResponse>> getSuggestions(String knowledgeKeyword) {
+    public CommonResponse <List <Map<String,Object>>> getSuggestions(String knowledgeKeyword) {
         String query = """
         SELECT 
             e.employee_id AS employee_id, 
@@ -125,16 +125,18 @@ public class EmployeeService {
         ORDER BY e.experience_level DESC
         """;
 
-        List<EmployeeResponse> employeeSuggestions = jdbcTemplate.query(
+        List<Map<String,Object>> employeeSuggestions = jdbcTemplate.query(
                 query,
                 new Object[]{"%" + knowledgeKeyword + "%"},
-                (rs, rowNum) -> new EmployeeResponse(
-                        rs.getInt("employee_id"),
-                        rs.getString("employee_name"),
-                        rs.getString("knowledge"),
-                        rs.getString("experience"),
-                        rs.getString("skills")
-                )
+                (rs, rowNum) -> {
+                    Map<String, Object> response = new LinkedHashMap<>();
+                    response.put("employeeId", rs.getInt("employee_id"));
+                    response.put("employeeName", rs.getString("employee_name"));
+                    response.put("knowledge", rs.getString("knowledge"));
+                    response.put("experience", rs.getString("experience"));
+                    response.put("skills", rs.getString("skills"));
+                    return response;
+                }
         );
 
         // Wrap the response in CommonResponse format
