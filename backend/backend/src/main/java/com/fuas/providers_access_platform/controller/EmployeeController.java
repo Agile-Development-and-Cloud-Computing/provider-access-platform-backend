@@ -2,7 +2,6 @@ package com.fuas.providers_access_platform.controller;
 
 
 import com.fuas.providers_access_platform.dto.CommonResponse;
-import com.fuas.providers_access_platform.dto.EmployeeResponse;
 import com.fuas.providers_access_platform.model.Employee;
 import com.fuas.providers_access_platform.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +51,6 @@ public class EmployeeController {
         CommonResponse response = employeeService.uploadProfile(employeeRequest);
         return response;
     }
-
 
     @GetMapping("/suggestions")
     public CommonResponse <List<Map<String, Object>>> getEmployeeSuggestions(@RequestParam String knowledgeKeyword) {

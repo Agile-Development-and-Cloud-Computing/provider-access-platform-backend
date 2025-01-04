@@ -36,11 +36,16 @@ public class LoginService {
         }
     }
 
-    public CommonResponse<LoginResponse> registerUser(LoginRequest registerRequest) {
+    public CommonResponse registerUser(LoginRequest registerRequest) {
         // Check if the username or email already exists
         if (userRepository.existsByUsername(registerRequest.getUsername()) ||
                 userRepository.existsByEmail(registerRequest.getEmail())) {
             return new CommonResponse<>(false, "Username or email already exists", null);
+        }
+
+        // Check added to add the default value for userType if not provided
+        if (registerRequest.getUserType() == null || registerRequest.getUserType().isEmpty()) {
+            registerRequest.setUserType("User"); // Default value
         }
 
         // Create a new User entity and save it with the plain password
@@ -52,9 +57,7 @@ public class LoginService {
         user.setUserType(registerRequest.getUserType());
         userRepository.save(user);
 
-        LoginResponse registerResponse = new LoginResponse(
-                "User registered successfully" // Pass only the message or userType
-        );
-        return new CommonResponse<>(true, "Registration successful", registerResponse);
+
+        return new CommonResponse<>(true, "Registration successful", null);
     }
 }

@@ -26,7 +26,6 @@ public class LoginController {
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResponseEntity<CommonResponse<Map<String, Object>>> processLogin(@RequestBody LoginRequest inputPayload) {
 
-
         // Call the simplified authenticate method in the LoginService
         CommonResponse<Map<String, Object>> response = loginService.simplifiedAuthenticate(inputPayload, logger);
 
@@ -44,8 +43,7 @@ public class LoginController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<CommonResponse<LoginResponse>> registerUser(@RequestBody LoginRequest inputPayload) {
-        System.out.println("Inside Register User");
+    public ResponseEntity<CommonResponse> registerUser(@RequestBody LoginRequest inputPayload) {
         CommonResponse<LoginResponse> response = loginService.registerUser(inputPayload);
         if (response.isSuccess()) {
             System.out.println("Success");

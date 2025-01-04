@@ -2,14 +2,12 @@ package com.fuas.providers_access_platform.service;
 
 
 import com.fuas.providers_access_platform.dto.CommonResponse;
-import com.fuas.providers_access_platform.dto.EmployeeResponse;
 import com.fuas.providers_access_platform.model.Employee;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
