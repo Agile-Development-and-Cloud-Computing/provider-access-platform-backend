@@ -28,12 +28,13 @@ public class RequestManagementService {
         // Fetch all role offers from the database
         List<RoleOffer> roleOffers = roleOfferRepository.findAll();
 
+        System.out.println("Rows"+roleOffers.toString());
         // Group by roleName, masterAgreementTypeName, and domainId
         Map<String, List<RoleOffer>> groupedOffers = roleOffers.stream().collect(Collectors.groupingBy(
                 offer -> offer.getRoleName() + "|" + offer.getMasterAgreementTypeName() + "|" + offer.getDomainId()
         ));
 
-        // Transform the grouped data into RoleOfferResponseDTO
+        System.out.println("Rows"+ groupedOffers.toString());
         // Transform grouped data into List<Map<String, Object>>
         return groupedOffers.values().stream().map(offers -> {
             RoleOffer firstOffer = offers.get(0);

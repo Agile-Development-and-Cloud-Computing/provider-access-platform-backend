@@ -23,10 +23,10 @@ public class RequestManagementController {
     private RequestManagementService requestManagementService;
 
 
-    @GetMapping("/get-all-offers-grouped")
+    @GetMapping("/RoleOffers")
     public ResponseEntity<CommonResponse<List<Map<String,Object>>>> getAllOffersGrouped() {
         // Fetch grouped offers from service
-        List<Map<String ,Object>> groupedOffers = requestManagementService.getAllOffersGrouped();
+        List<Map<String,Object>> groupedOffers = requestManagementService.getAllOffersGrouped();
 
         // Build response
         CommonResponse<List<Map<String,Object>>> response = new CommonResponse<>();

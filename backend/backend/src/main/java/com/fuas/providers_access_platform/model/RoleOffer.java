@@ -119,4 +119,22 @@ public class RoleOffer {
     public void setOfferCycle(String offerCycle) {
         this.offerCycle = offerCycle;
     }
+
+    @Override
+    public String toString() {
+        return "RoleOffer{" +
+                "id=" + id +
+                ", roleName='" + roleName + '\'' +
+                ", experienceLevel='" + experienceLevel + '\'' +
+                ", technologiesCatalog='" + technologiesCatalog + '\'' +
+                ", domainId=" + domainId +
+                ", domainName='" + domainName + '\'' +
+                ", masterAgreementTypeId=" + masterAgreementTypeId +
+                ", masterAgreementTypeName='" + masterAgreementTypeName + '\'' +
+                ", provider='" + provider + '\'' +
+                ", quotePrice=" + quotePrice +
+                ", isAccepted=" + isAccepted +
+                ", offerCycle='" + offerCycle + '\'' +
+                '}';
+    }
 }
