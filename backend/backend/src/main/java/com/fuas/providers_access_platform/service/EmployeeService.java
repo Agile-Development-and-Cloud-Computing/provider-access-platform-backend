@@ -115,8 +115,8 @@ public class EmployeeService {
         SELECT 
             e.employee_id AS employee_id, 
             e.employee_name AS employee_name, 
-            e.skills AS knowledge, 
-            e.experience_level AS experience, 
+            e.role AS role, 
+            e.experience_level AS experience_level, 
             e.skills AS skills
         FROM employees e
         WHERE e.skills LIKE ?
@@ -130,8 +130,8 @@ public class EmployeeService {
                     Map<String, Object> response = new LinkedHashMap<>();
                     response.put("employeeId", rs.getInt("employee_id"));
                     response.put("employeeName", rs.getString("employee_name"));
-                    response.put("knowledge", rs.getString("knowledge"));
-                    response.put("experience", rs.getString("experience"));
+                    response.put("role", rs.getString("role"));
+                    response.put("experienceLevel", rs.getString("experience_level"));
                     response.put("skills", rs.getString("skills"));
                     return response;
                 }
