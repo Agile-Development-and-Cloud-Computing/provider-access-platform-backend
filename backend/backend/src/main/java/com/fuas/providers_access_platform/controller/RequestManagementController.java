@@ -23,35 +23,6 @@ public class RequestManagementController {
     private RequestManagementService requestManagementService;
 
 
-    @GetMapping("/RoleOffers")
-    public ResponseEntity<CommonResponse<List<Map<String,Object>>>> getAllOffersGrouped() {
-        // Fetch grouped offers from service
-        List<Map<String,Object>> groupedOffers = requestManagementService.getAllOffersGrouped();
-
-        // Build response
-        CommonResponse<List<Map<String,Object>>> response = new CommonResponse<>();
-        response.setSuccess(true);
-        response.setMessage("Data retrieved successfully");
-        response.setTimestamp(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-        response.setData(groupedOffers);
-
-        return ResponseEntity.ok(response);
-    }
-
-
-    @PostMapping("/post-ma-offer-response")
-    public ResponseEntity<Map<String, String>> postMaOfferResponse(@RequestBody Map<String, Object> request) {
-        Long offerId = Long.valueOf(request.get("offerId").toString());
-        Boolean isAccepted = Boolean.valueOf(request.get("isAccepted").toString());
-
-        requestManagementService.updateOfferResponse(offerId, isAccepted);
-
-        return ResponseEntity.ok(Map.of(
-                "status", "success",
-                "message", "Response Posted successfully"
-        ));
-    }
-
     @PostMapping("/bid/place")
     public ResponseEntity<CommonResponse> placeBid(@RequestBody BidRequest bidRequest) {
         CommonResponse response = requestManagementService.placeBid(bidRequest);

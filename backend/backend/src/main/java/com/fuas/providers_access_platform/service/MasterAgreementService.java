@@ -1,7 +1,6 @@
 package com.fuas.providers_access_platform.service;
 import com.fuas.providers_access_platform.dto.CommonResponse;
 import com.fuas.providers_access_platform.dto.MasterAgreementRequest;
-import com.fuas.providers_access_platform.dto.MasterAgreementResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
