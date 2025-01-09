@@ -1,17 +1,18 @@
 package com.fuas.providers_access_platform.dto;
 
+import com.fuas.providers_access_platform.model.Domain;
+
+import java.util.List;
+
 public class MasterAgreementRequest {
 
     private Integer masterAgreementTypeId;
     private String masterAgreementTypeName;
-    private String roleName;
-    private String experienceLevel;
-    private String technologiesCatalog;
-    private Integer domainId;
-    private String domainName;
-    private String offerCycle;
-    private String provider;
-    private Double quotePrice;
+    private String validFrom;
+    private String validUntil;
+    private String status;
+    private String createdAt;
+    private List<Domain> domains;
 
     public Integer getMasterAgreementTypeId() {
         return masterAgreementTypeId;
@@ -29,83 +30,58 @@ public class MasterAgreementRequest {
         this.masterAgreementTypeName = masterAgreementTypeName;
     }
 
-    public String getRoleName() {
-        return roleName;
+    public String getValidFrom() {
+        return validFrom;
     }
 
-    public void setRoleName(String roleName) {
-        this.roleName = roleName;
+    public void setValidFrom(String validFrom) {
+        this.validFrom = validFrom;
     }
 
-    public String getExperienceLevel() {
-        return experienceLevel;
+    public String getValidUntil() {
+        return validUntil;
     }
 
-    public void setExperienceLevel(String experienceLevel) {
-        this.experienceLevel = experienceLevel;
+    public void setValidUntil(String validUntil) {
+        this.validUntil = validUntil;
     }
 
-    public String getTechnologiesCatalog() {
-        return technologiesCatalog;
+    public String getStatus() {
+        return status;
     }
 
-    public void setTechnologiesCatalog(String technologiesCatalog) {
-        this.technologiesCatalog = technologiesCatalog;
+    public void setStatus(String status) {
+        this.status = status;
     }
 
-    public Integer getDomainId() {
-        return domainId;
+    public String getCreatedAt() {
+        return createdAt;
     }
 
-    public void setDomainId(Integer domainId) {
-        this.domainId = domainId;
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
     }
 
-    public String getDomainName() {
-        return domainName;
+    public List<Domain> getDomains() {
+        return domains;
     }
 
-    public void setDomainName(String domainName) {
-        this.domainName = domainName;
+    public void setDomains(List<Domain> domains) {
+        this.domains = domains;
     }
 
-    public String getOfferCycle() {
-        return offerCycle;
-    }
 
-    public void setOfferCycle(String offerCycle) {
-        this.offerCycle = offerCycle;
-    }
-
-    public String getProvider() {
-        return provider;
-    }
-
-    public void setProvider(String provider) {
-        this.provider = provider;
-    }
-
-    public Double getQuotePrice() {
-        return quotePrice;
-    }
-
-    public void setQuotePrice(Double quotePrice) {
-        this.quotePrice = quotePrice;
-    }
 
     @Override
     public String toString() {
         return "MasterAgreementRequest{" +
                 "masterAgreementTypeId=" + masterAgreementTypeId +
                 ", masterAgreementTypeName='" + masterAgreementTypeName + '\'' +
-                ", roleName='" + roleName + '\'' +
-                ", experienceLevel='" + experienceLevel + '\'' +
-                ", technologiesCatalog='" + technologiesCatalog + '\'' +
-                ", domainId=" + domainId +
-                ", domainName='" + domainName + '\'' +
-                ", offerCycle='" + offerCycle + '\'' +
-                ", provider='" + provider + '\'' +
-                ", quotePrice=" + quotePrice +
+                ", validFrom='" + validFrom + '\'' +
+                ", validUntil='" + validUntil + '\'' +
+                ", status='" + status + '\'' +
+                ", createdAt='" + createdAt + '\'' +
+                ", domains=" + domains +
                 '}';
     }
 }

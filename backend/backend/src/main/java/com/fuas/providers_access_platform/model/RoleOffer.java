@@ -15,13 +15,11 @@ public class RoleOffer {
     private String roleName;
     private String experienceLevel;
     private String technologiesCatalog;
-    private Integer domainId;
     private String domainName;
     private Integer masterAgreementTypeId;
     private String masterAgreementTypeName;
     private String provider;
     private Double quotePrice;
-    private Boolean isAccepted;
     private String offerCycle;
 
     public Long getId() {
@@ -54,14 +52,6 @@ public class RoleOffer {
 
     public void setTechnologiesCatalog(String technologiesCatalog) {
         this.technologiesCatalog = technologiesCatalog;
-    }
-
-    public Integer getDomainId() {
-        return domainId;
-    }
-
-    public void setDomainId(Integer domainId) {
-        this.domainId = domainId;
     }
 
     public String getDomainName() {
@@ -104,14 +94,6 @@ public class RoleOffer {
         this.quotePrice = quotePrice;
     }
 
-    public Boolean getIsAccepted() {
-        return isAccepted;
-    }
-
-    public void setIsAccepted(Boolean accepted) {
-        isAccepted = accepted;
-    }
-
     public String getOfferCycle() {
         return offerCycle;
     }
@@ -127,13 +109,11 @@ public class RoleOffer {
                 ", roleName='" + roleName + '\'' +
                 ", experienceLevel='" + experienceLevel + '\'' +
                 ", technologiesCatalog='" + technologiesCatalog + '\'' +
-                ", domainId=" + domainId +
                 ", domainName='" + domainName + '\'' +
                 ", masterAgreementTypeId=" + masterAgreementTypeId +
                 ", masterAgreementTypeName='" + masterAgreementTypeName + '\'' +
                 ", provider='" + provider + '\'' +
                 ", quotePrice=" + quotePrice +
-                ", isAccepted=" + isAccepted +
                 ", offerCycle='" + offerCycle + '\'' +
                 '}';
     }
