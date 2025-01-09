@@ -60,7 +60,7 @@ public class ProviderManagementController {
     @PostMapping("/create-offer")
     public CommonResponse createOffer(@RequestBody MasterAgreementRequest masterAgreementRequest) {
         // Call service to handle the logic
-        CommonResponse response = masterAgreementService.createOffer(masterAgreementRequest);
+        CommonResponse response = masterAgreementService.createMasterAgreementOffer(masterAgreementRequest);
         return response;
     }
 
@@ -90,7 +90,7 @@ public class ProviderManagementController {
 
         return ResponseEntity.ok(Map.of(
                 "status", "success",
-                "message", "Response Posted successfully"
+                "message", "Offer Response updated successfully"
         ));
     }
 }

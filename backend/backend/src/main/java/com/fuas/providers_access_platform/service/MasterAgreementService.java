@@ -1,9 +1,12 @@
 package com.fuas.providers_access_platform.service;
 import com.fuas.providers_access_platform.dto.CommonResponse;
 import com.fuas.providers_access_platform.dto.MasterAgreementRequest;
+import com.fuas.providers_access_platform.model.Domain;
+import com.fuas.providers_access_platform.model.RoleOffer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -54,37 +57,50 @@ public class MasterAgreementService {
         });
     }
 
-    public CommonResponse createOffer(MasterAgreementRequest masterAgreementRequest) {
-        // Validate input (you can add more validation as needed)
-        if (masterAgreementRequest.getMasterAgreementTypeId() == null || masterAgreementRequest.getProvider() == null) {
-            return new CommonResponse(false, "Invalid data", null);
-        }
-
-        // Construct the SQL query for inserting an offer
-        String sql = "INSERT INTO role_offer (master_agreement_type_id, master_agreement_type_name, " +
-                "role_name, experience_level, technologies_catalog, domain_id, domain_name, offer_cycle, " +
-                "provider, quote_price, is_accepted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
+    @Transactional
+    public CommonResponse createMasterAgreementOffer(MasterAgreementRequest request) {
         try {
-            // Execute the query to insert data
-            jdbcTemplate.update(sql,
-                    masterAgreementRequest.getMasterAgreementTypeId(),
-                    masterAgreementRequest.getMasterAgreementTypeName(),
-                    masterAgreementRequest.getRoleName(),
-                    masterAgreementRequest.getExperienceLevel(),
-                    masterAgreementRequest.getTechnologiesCatalog(),
-                    masterAgreementRequest.getDomainId(),
-                    masterAgreementRequest.getDomainName(),
-                    masterAgreementRequest.getOfferCycle(),
-                    masterAgreementRequest.getProvider(),
-                    masterAgreementRequest.getQuotePrice(),
-                    false // Initially, the offer is not accepted
+            // Insert into master_agreement_types table
+            String masterAgreementSql = "INSERT INTO master_agreement_types " +
+                    "(master_agreement_type_id, master_agreement_type_name, valid_from, valid_until, status, created_at) " +
+                    "VALUES (?, ?, ?, ?, ?, ?)";
+            jdbcTemplate.update(
+                    masterAgreementSql,
+                    request.getMasterAgreementTypeId(),
+                    request.getMasterAgreementTypeName(),
+                    request.getValidFrom(),
+                    request.getValidUntil(),
+                    request.getStatus(),
+                    request.getCreatedAt()
             );
-            // Return success response
-            return new CommonResponse(true, "Offer successfully created", null);
+
+            // Loop through the domains and insert into role_offer table
+            String roleOfferSql = "INSERT INTO role_offer" +
+                    "(id, domain_id ,master_agreement_type_id, master_agreement_type_name ,domain_name ,role_name, experience_level," +
+                    "technologies_catalog, provider, quote_price, offer_cycle) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
+            for (Domain domain : request.getDomains()) {
+                for (RoleOffer roleOffers : domain.getRoleOffer()) {
+                    jdbcTemplate.update(roleOfferSql,
+                            roleOffers.getId(),
+                            domain.getDomainId(),
+                            request.getMasterAgreementTypeId(),
+                            request.getMasterAgreementTypeName(),
+                            domain.getDomainName(),
+                            roleOffers.getRoleName(),
+                            roleOffers.getExperienceLevel(),
+                            roleOffers.getTechnologiesCatalog(),
+                            roleOffers.getProvider(),
+                            roleOffers.getQuotePrice(),
+                            roleOffers.getOfferCycle()
+                    );
+                }
+            }
+
+            return new CommonResponse(true, "Master Agreement and roles successfully created", null);
+
         } catch (Exception e) {
-            // Handle any errors during the DB operation
-            return new CommonResponse(false, "Error creating the offer: " + e.getMessage(), null);
+            return new CommonResponse(false, "Error creating Master Agreement: " + e.getMessage(), null);
         }
     }
 }

@@ -68,7 +68,7 @@ public class ProviderManagementService {
         System.out.println("Rows"+roleOffers.toString());
         // Group by roleName, masterAgreementTypeName, and domainId
         Map<String, List<RoleOffer>> groupedOffers = roleOffers.stream().collect(Collectors.groupingBy(
-                offer -> offer.getRoleName() + "|" + offer.getMasterAgreementTypeName() + "|" + offer.getDomainId()
+                offer -> offer.getRoleName() + "|" + offer.getMasterAgreementTypeName() + "|"
         ));
 
         System.out.println("Rows"+ groupedOffers.toString());
@@ -81,7 +81,6 @@ public class ProviderManagementService {
             response.put("roleName", firstOffer.getRoleName());
             response.put("experienceLevel", firstOffer.getExperienceLevel());
             response.put("technologiesCatalog", firstOffer.getTechnologiesCatalog());
-            response.put("domainId", firstOffer.getDomainId());
             response.put("domainName", firstOffer.getDomainName());
             response.put("masterAgreementTypeId", firstOffer.getMasterAgreementTypeId());
             response.put("masterAgreementTypeName", firstOffer.getMasterAgreementTypeName());
@@ -92,7 +91,6 @@ public class ProviderManagementService {
                 provider.put("offerId", offer.getId());
                 provider.put("providerName", offer.getProvider());
                 provider.put("quotePrice", offer.getQuotePrice());
-                provider.put("isAccepted", offer.getIsAccepted());
                 provider.put("offerCycle", offer.getOfferCycle());
                 return provider;
             }).collect(Collectors.toList());
@@ -107,8 +105,7 @@ public class ProviderManagementService {
         RoleOffer offer = roleOfferRepository.findById(offerId)
                 .orElseThrow(() -> new IllegalArgumentException("Offer with ID " + offerId + " not found."));
 
-        // Update the isAccepted field
-        offer.setIsAccepted(isAccepted);
+        // Update the isAccepted field;
 
         // Save the updated offer back to the database
         roleOfferRepository.save(offer);
