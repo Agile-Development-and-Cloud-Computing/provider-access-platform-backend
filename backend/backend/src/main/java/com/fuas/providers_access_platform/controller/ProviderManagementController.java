@@ -4,9 +4,11 @@ package com.fuas.providers_access_platform.controller;
 import com.fuas.providers_access_platform.dto.CommonResponse;
 import com.fuas.providers_access_platform.dto.MasterAgreementRequest;
 import com.fuas.providers_access_platform.dto.ProviderRequest;
+import com.fuas.providers_access_platform.model.RoleOffer;
 import com.fuas.providers_access_platform.service.MasterAgreementService;
 import com.fuas.providers_access_platform.service.ProviderManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/api/provider")
 public class ProviderManagementController {
     @Autowired
@@ -92,5 +95,20 @@ public class ProviderManagementController {
                 "status", "success",
                 "message", "Offer Response updated successfully"
         ));
+    }
+
+    @PostMapping("/bid")
+    public ResponseEntity<Map<String, Object>> createRoleOffer(@RequestBody RoleOffer request) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            masterAgreementService.updateOffer(request);
+            response.put("success", true);
+            response.put("message", "Role Offer successfully created");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error creating Role Offer: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
 }

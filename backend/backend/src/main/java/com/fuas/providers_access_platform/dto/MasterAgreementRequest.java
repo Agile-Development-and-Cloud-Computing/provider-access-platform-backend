@@ -71,11 +71,10 @@ public class MasterAgreementRequest {
     }
 
 
-
     @Override
     public String toString() {
         return "MasterAgreementRequest{" +
-                "masterAgreementTypeId=" + masterAgreementTypeId +
+                ", masterAgreementTypeId=" + masterAgreementTypeId +
                 ", masterAgreementTypeName='" + masterAgreementTypeName + '\'' +
                 ", validFrom='" + validFrom + '\'' +
                 ", validUntil='" + validUntil + '\'' +

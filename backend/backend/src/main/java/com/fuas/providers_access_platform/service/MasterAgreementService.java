@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,32 +76,95 @@ public class MasterAgreementService {
             );
 
             // Loop through the domains and insert into role_offer table
-            String roleOfferSql = "INSERT INTO role_offer" +
-                    "(id, domain_id ,master_agreement_type_id, master_agreement_type_name ,domain_name ,role_name, experience_level," +
-                    "technologies_catalog, provider, quote_price, offer_cycle) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
+            String OfferSql = "INSERT INTO offer " +
+                    "(domain_id, domain_name, role_name, experience_level, " +
+                    "technologies_catalog, quote_price, offer_date, master_agreement_type_name, status) " +    //quote price comes from Group 1
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? )";
             for (Domain domain : request.getDomains()) {
                 for (RoleOffer roleOffers : domain.getRoleOffer()) {
-                    jdbcTemplate.update(roleOfferSql,
-                            roleOffers.getId(),
+                    jdbcTemplate.update(OfferSql,
                             domain.getDomainId(),
-                            request.getMasterAgreementTypeId(),
-                            request.getMasterAgreementTypeName(),
                             domain.getDomainName(),
                             roleOffers.getRoleName(),
                             roleOffers.getExperienceLevel(),
                             roleOffers.getTechnologiesCatalog(),
-                            roleOffers.getProvider(),
                             roleOffers.getQuotePrice(),
-                            roleOffers.getOfferCycle()
+                            request.getCreatedAt(),
+                            request.getMasterAgreementTypeName(),
+                            request.getStatus()
                     );
                 }
             }
 
-            return new CommonResponse(true, "Master Agreement and roles successfully created", null);
+            return new CommonResponse(true, "Master Agreement successfully created", null);
 
         } catch (Exception e) {
             return new CommonResponse(false, "Error creating Master Agreement: " + e.getMessage(), null);
         }
     }
+
+
+    @Transactional
+    public void updateOffer(RoleOffer request) {
+
+        try {
+            // Log the request to ensure parameters are correctly passed
+            System.out.println("Request Data: " +
+                    "Domain ID: " + request.getDomainId() + ", " +
+                    "Domain Name: " + request.getDomainName() + ", " +
+                    "Role Name: " + request.getRoleName() + ", " +
+                    "Master Agreement Type Name: " + request.getMasterAgreementTypeName() + ", " +
+                    "Master Agreement Type ID: " + request.getMasterAgreementTypeId());
+
+            // SQL query to select data from the 'offer' table based on the provided parameters
+            String selectSql = "SELECT domain_id, domain_name, role_name, experience_level, technologies_catalog, quote_price, offer_date, master_agreement_type_name, status " +
+                    "FROM offer " +
+                    "WHERE domain_id = ? " +
+                    "AND domain_name = ? " +
+                    "AND role_name = ? " +
+                    "AND master_agreement_type_name = ?";
+
+            // Fetch the data from the 'offer' table based on the request
+            List<Map<String, Object>> offers = jdbcTemplate.queryForList(selectSql,
+                    request.getDomainId(),
+                    request.getDomainName(),
+                    request.getRoleName(),
+                    request.getMasterAgreementTypeName()
+            );
+
+            // Check if the query result is empty
+            if (offers.isEmpty()) {
+                throw new Exception("No offer found for the provided criteria.");
+            }
+
+            // SQL query to insert into role_offers
+            String insertSql = "INSERT INTO role_offer (id, role_name, experience_level, technologies_catalog, domain_name, domain_id, quote_price, master_agreement_type_id, " +
+                    "master_agreement_type_name, provider, bid_price ) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
+
+            // Loop through the offers retrieved from the 'offer' table
+            for (Map<String, Object> offer : offers) {
+                jdbcTemplate.update(insertSql,
+                        request.getId(),
+                        offer.get("role_name"),  // role_name
+                        offer.get("experience_level"),  // experience_level
+                        offer.get("technologies_catalog"),  // technologies_catalog
+                        offer.get("domain_name"),  // domain_name
+                        offer.get("domain_id"),// domain_id
+                        offer.get("quote_price"),
+                        request.getMasterAgreementTypeId(),  // master_agreement_type_id from request
+                        request.getMasterAgreementTypeName(),  // master_agreement_type_name from request
+                        request.getProvider(),  // provider from request
+                        request.getBidPrice() // quote_price from request
+
+                );
+            }
+
+        } catch (Exception e) {
+            // Log the exception for debugging
+            e.printStackTrace();
+            throw new RuntimeException("Error while updating offer: " + e.getMessage(), e);
+        }
+    }
+
 }

@@ -16,11 +16,13 @@ public class RoleOffer {
     private String experienceLevel;
     private String technologiesCatalog;
     private String domainName;
+    private String domainId;
     private Integer masterAgreementTypeId;
     private String masterAgreementTypeName;
     private String provider;
     private Double quotePrice;
     private String offerCycle;
+    private Double bidPrice;
 
     public Long getId() {
         return id;
@@ -60,6 +62,14 @@ public class RoleOffer {
 
     public void setDomainName(String domainName) {
         this.domainName = domainName;
+    }
+
+    public String getDomainId() {
+        return domainId;
+    }
+
+    public void setDomainId(String domainId) {
+        this.domainId = domainId;
     }
 
     public Integer getMasterAgreementTypeId() {
@@ -102,6 +112,14 @@ public class RoleOffer {
         this.offerCycle = offerCycle;
     }
 
+    public Double getBidPrice() {
+        return bidPrice;
+    }
+
+    public void setBidPrice(Double bidPrice) {
+        this.bidPrice = bidPrice;
+    }
+
     @Override
     public String toString() {
         return "RoleOffer{" +
@@ -110,11 +128,13 @@ public class RoleOffer {
                 ", experienceLevel='" + experienceLevel + '\'' +
                 ", technologiesCatalog='" + technologiesCatalog + '\'' +
                 ", domainName='" + domainName + '\'' +
+                ", domainId='" + domainId + '\'' +
                 ", masterAgreementTypeId=" + masterAgreementTypeId +
                 ", masterAgreementTypeName='" + masterAgreementTypeName + '\'' +
                 ", provider='" + provider + '\'' +
                 ", quotePrice=" + quotePrice +
                 ", offerCycle='" + offerCycle + '\'' +
+                ", bidPrice=" + bidPrice +
                 '}';
     }
 }
