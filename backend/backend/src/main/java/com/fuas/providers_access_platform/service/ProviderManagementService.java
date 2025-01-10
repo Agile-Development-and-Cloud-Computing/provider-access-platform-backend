@@ -91,7 +91,7 @@ public class ProviderManagementService {
                 provider.put("offerId", offer.getId());
                 provider.put("providerName", offer.getProvider());
                 provider.put("quotePrice", offer.getQuotePrice());
-                provider.put("offerCycle", offer.getOfferCycle());
+                provider.put("bidPrice", offer.getBidPrice());
                 return provider;
             }).collect(Collectors.toList());
 

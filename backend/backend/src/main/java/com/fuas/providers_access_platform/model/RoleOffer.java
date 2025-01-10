@@ -24,6 +24,7 @@ public class RoleOffer {
     private String offerCycle;
     private Double bidPrice;
 
+
     public Long getId() {
         return id;
     }
