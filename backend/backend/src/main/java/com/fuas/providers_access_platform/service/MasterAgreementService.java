@@ -105,7 +105,7 @@ public class MasterAgreementService {
 
 
     @Transactional
-    public void updateOffer(RoleOffer request) {
+    public boolean updateOffer(RoleOffer request) {
 
         try {
             // Log the request to ensure parameters are correctly passed
@@ -134,7 +134,7 @@ public class MasterAgreementService {
 
             // Check if the query result is empty
             if (offers.isEmpty()) {
-                throw new Exception("No offer found for the provided criteria.");
+                return false;
             }
 
             // SQL query to insert into role_offers
@@ -160,6 +160,7 @@ public class MasterAgreementService {
                 );
             }
 
+            return true;
         } catch (Exception e) {
             // Log the exception for debugging
             e.printStackTrace();

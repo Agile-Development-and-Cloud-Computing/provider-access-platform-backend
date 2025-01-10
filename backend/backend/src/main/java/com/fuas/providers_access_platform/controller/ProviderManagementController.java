@@ -101,7 +101,14 @@ public class ProviderManagementController {
     public ResponseEntity<Map<String, Object>> createRoleOffer(@RequestBody RoleOffer request) {
         Map<String, Object> response = new HashMap<>();
         try {
-            masterAgreementService.updateOffer(request);
+            boolean offer = masterAgreementService.updateOffer(request);
+
+            if (!offer) {
+                response.put("success", false);
+                response.put("message", "The offer does not exist. Please contact the Admin.");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+
             response.put("success", true);
             response.put("message", "Role Offer successfully created");
             return ResponseEntity.ok(response);
