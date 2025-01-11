@@ -114,7 +114,9 @@ public class MasterAgreementService {
                     "Domain Name: " + request.getDomainName() + ", " +
                     "Role Name: " + request.getRoleName() + ", " +
                     "Master Agreement Type Name: " + request.getMasterAgreementTypeName() + ", " +
-                    "Master Agreement Type ID: " + request.getMasterAgreementTypeId());
+                    "Master Agreement Type ID: " + request.getMasterAgreementTypeId() +"," +
+                    "Experience Level :" + request.getExperienceLevel());
+
 
             // SQL query to select data from the 'offer' table based on the provided parameters
             String selectSql = "SELECT domain_id, domain_name, role_name, experience_level, technologies_catalog, quote_price, offer_date, master_agreement_type_name, status " +
@@ -122,14 +124,16 @@ public class MasterAgreementService {
                     "WHERE domain_id = ? " +
                     "AND domain_name = ? " +
                     "AND role_name = ? " +
-                    "AND master_agreement_type_name = ?";
+                    "AND master_agreement_type_name = ?" +
+                    "AND experience_level = ? ";
 
             // Fetch the data from the 'offer' table based on the request
             List<Map<String, Object>> offers = jdbcTemplate.queryForList(selectSql,
                     request.getDomainId(),
                     request.getDomainName(),
                     request.getRoleName(),
-                    request.getMasterAgreementTypeName()
+                    request.getMasterAgreementTypeName(),
+                    request.getExperienceLevel()
             );
 
             // Check if the query result is empty
