@@ -106,7 +106,7 @@ public class ProviderManagementController {
             if (!offer) {
                 response.put("success", false);
                 response.put("message", "The offer does not exist. Please contact the Admin.");
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+                return ResponseEntity.ok(response);
             }
 
             response.put("success", true);
