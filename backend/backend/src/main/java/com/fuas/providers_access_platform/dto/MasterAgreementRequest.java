@@ -1,17 +1,21 @@
 package com.fuas.providers_access_platform.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fuas.providers_access_platform.model.Domain;
 
 import java.util.List;
 
 public class MasterAgreementRequest {
 
+    @JsonProperty("agreementId")
     private Integer masterAgreementTypeId;
+    @JsonProperty("name")
     private String masterAgreementTypeName;
     private String validFrom;
     private String validUntil;
     private String status;
     private String createdAt;
+    @JsonProperty("agreementDetails")
     private List<Domain> domains;
 
     public Integer getMasterAgreementTypeId() {

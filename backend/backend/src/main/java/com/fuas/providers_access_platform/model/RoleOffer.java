@@ -1,6 +1,7 @@
 package com.fuas.providers_access_platform.model;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 @Entity
@@ -12,15 +13,20 @@ public class RoleOffer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonProperty("role")
     private String roleName;
+    @JsonProperty("level")
     private String experienceLevel;
+    @JsonProperty("technologyLevel")
     private String technologiesCatalog;
     private String domainName;
     private String domainId;
     private Integer masterAgreementTypeId;
     private String masterAgreementTypeName;
     private String provider;
+    @JsonProperty("price")
     private Double quotePrice;
+    @JsonProperty("cycle")
     private String offerCycle;
     private Double bidPrice;
 
