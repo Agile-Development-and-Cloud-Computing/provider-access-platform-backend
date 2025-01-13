@@ -20,6 +20,11 @@ public class ApiService {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+
+    String validFromFormatted ;
+    String validUntilFormatted ;
+    String createdAtFormatted;
+
     @Autowired
     public ApiService(WebClient.Builder webClientBuilder, JdbcTemplate jdbcTemplate) {
         this.webClient = webClientBuilder.baseUrl("https://agiledev-contractandprovidermana-production.up.railway.app/master-agreements").build();
@@ -45,9 +50,9 @@ public class ApiService {
             });
             // Insert each agreement into the database
             agreements.forEach(agreement -> {
-                String validFromFormatted = formatDateForSQL(agreement.getValidFrom());
-                String validUntilFormatted = formatDateForSQL(agreement.getValidUntil());
-                String createdAtFormatted = formatDateForSQL(agreement.getCreatedAt());
+                validFromFormatted = formatDateForSQL(agreement.getValidFrom());
+                validUntilFormatted = formatDateForSQL(agreement.getValidUntil());
+                createdAtFormatted = formatDateForSQL(agreement.getCreatedAt());
 
                 String masterAgreementSql = "INSERT INTO master_agreement_types (master_agreement_type_id, master_agreement_type_name, valid_from, valid_until, status, created_at) VALUES (?, ?, ?, ?, ?, ?)";
                 jdbcTemplate.update(masterAgreementSql,
@@ -60,8 +65,8 @@ public class ApiService {
 
                 agreement.getDomains().forEach(domain -> {
                     domain.getRoleOffer().forEach(roleOffer -> {
-                        String offerSql = "INSERT INTO offer (domain_id, domain_name, role_name, experience_level, technologies_catalog, quote_price, offer_date, master_agreement_type_name, status) " +
-                                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                        String offerSql = "INSERT INTO offer (domain_id, domain_name, role_name, experience_level, technologies_catalog, quote_price, offer_date, master_agreement_type_name, status, master_agreement_type_id) " +
+                                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                         jdbcTemplate.update(offerSql,
                                 domain.getDomainId(),
                                 domain.getDomainName(),
@@ -69,9 +74,10 @@ public class ApiService {
                                 roleOffer.getExperienceLevel(),
                                 roleOffer.getTechnologiesCatalog(),
                                 roleOffer.getQuotePrice(),
-                                "2024-01-01T00:00:00.000",
+                                createdAtFormatted,
                                 agreement.getMasterAgreementTypeName(),
-                                agreement.getStatus());
+                                agreement.getStatus(),
+                                agreement.getMasterAgreementTypeId());
                     });
                 });
             });
