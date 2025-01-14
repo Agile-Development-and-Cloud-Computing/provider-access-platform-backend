@@ -65,9 +65,10 @@ public class ApiService {
 
                 agreement.getDomains().forEach(domain -> {
                     domain.getRoleOffer().forEach(roleOffer -> {
-                        String offerSql = "INSERT INTO offer (domain_id, domain_name, role_name, experience_level, technologies_catalog, quote_price, offer_date, master_agreement_type_name, status, master_agreement_type_id) " +
-                                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                        String offerSql = "INSERT INTO offer (role_id, domain_id, domain_name, role_name, experience_level, technologies_catalog, quote_price, offer_date, master_agreement_type_name, status, master_agreement_type_id) " +
+                                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                         jdbcTemplate.update(offerSql,
+                                roleOffer.getRoleId(),
                                 domain.getDomainId(),
                                 domain.getDomainName(),
                                 roleOffer.getRoleName(),

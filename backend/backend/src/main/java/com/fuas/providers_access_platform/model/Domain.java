@@ -2,13 +2,14 @@ package com.fuas.providers_access_platform.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Domain {
     private Integer domainId;
     private String domainName;
     @JsonProperty("roleDetails")
-    private List<RoleOffer> roleOffer;
+    private List<RoleOffer> roleOffer = new ArrayList<>();
 
     public Integer getDomainId() {
         return domainId;

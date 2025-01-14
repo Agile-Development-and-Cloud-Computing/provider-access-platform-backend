@@ -15,6 +15,8 @@ public class RoleOffer {
 
     @JsonProperty("role")
     private String roleName;
+    @JsonProperty("roleId")
+    private Integer roleId;
     @JsonProperty("level")
     private String experienceLevel;
     @JsonProperty("technologyLevel")
@@ -45,6 +47,14 @@ public class RoleOffer {
 
     public void setRoleName(String roleName) {
         this.roleName = roleName;
+    }
+
+    public Integer getRoleId() {
+        return roleId;
+    }
+
+    public void setRoleId(Integer roleId) {
+        this.roleId = roleId;
     }
 
     public String getExperienceLevel() {
@@ -132,6 +142,7 @@ public class RoleOffer {
         return "RoleOffer{" +
                 "id=" + id +
                 ", roleName='" + roleName + '\'' +
+                ", roleId=" + roleId +
                 ", experienceLevel='" + experienceLevel + '\'' +
                 ", technologiesCatalog='" + technologiesCatalog + '\'' +
                 ", domainName='" + domainName + '\'' +

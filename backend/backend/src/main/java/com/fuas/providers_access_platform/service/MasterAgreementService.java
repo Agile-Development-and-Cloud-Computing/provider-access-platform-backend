@@ -24,6 +24,7 @@ public class MasterAgreementService {
                     "    ma.valid_from, " +
                     "    ma.valid_until, " +
                     "    ma.created_at, " +
+                    "    ro.role_id, " +
                     "    ro.role_name, " +
                     "    ro.experience_level, " +
                     "    ro.technologies_catalog, " +
@@ -45,6 +46,7 @@ public class MasterAgreementService {
                 response.put("masterAgreementTypeName", rs.getString("master_agreement_type_name"));
                 response.put("validFrom", rs.getDate("valid_from"));
                 response.put("validUntil", rs.getDate("valid_until"));
+                response.put("roleId", rs.getString("role_id"));
                 response.put("roleName", rs.getString("role_name"));
                 response.put("experienceLevel", rs.getString("experience_level"));
                 response.put("technologiesCatalog", rs.getString("technologies_catalog"));
@@ -111,6 +113,7 @@ public class MasterAgreementService {
             // Add the role offer to the domain
             List<Map<String, Object>> roleOffers = (List<Map<String, Object>>) domain.get("roleOffer");
             Map<String, Object> roleOffer = new LinkedHashMap<>();
+            roleOffer.put("roleId",row.get("roleId"));
             roleOffer.put("roleName", row.get("roleName"));
             roleOffer.put("experienceLevel", row.get("experienceLevel"));
             roleOffer.put("technologiesCatalog", row.get("technologiesCatalog"));
@@ -144,8 +147,8 @@ public class MasterAgreementService {
             // Loop through the domains and insert into role_offer table
             String OfferSql = "INSERT INTO offer " +
                     "(domain_id, domain_name, role_name, experience_level, " +
-                    "technologies_catalog, quote_price, offer_date, master_agreement_type_name, status) " +    //quote price comes from Group 1
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? )";
+                    "technologies_catalog, quote_price, offer_date, master_agreement_type_name, status, master_agreement_type_id) " +    //quote price comes from Group 1
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             for (Domain domain : request.getDomains()) {
                 for (RoleOffer roleOffers : domain.getRoleOffer()) {
                     jdbcTemplate.update(OfferSql,
@@ -157,7 +160,8 @@ public class MasterAgreementService {
                             roleOffers.getQuotePrice(),
                             request.getCreatedAt(),
                             request.getMasterAgreementTypeName(),
-                            request.getStatus()
+                            request.getStatus(),
+                            request.getMasterAgreementTypeId()
                     );
                 }
             }
@@ -178,6 +182,7 @@ public class MasterAgreementService {
             System.out.println("Request Data: " +
                     "Domain ID: " + request.getDomainId() + ", " +
                     "Domain Name: " + request.getDomainName() + ", " +
+                    "Role Id: " + request.getRoleId() + ", " +
                     "Role Name: " + request.getRoleName() + ", " +
                     "Master Agreement Type Name: " + request.getMasterAgreementTypeName() + ", " +
                     "Master Agreement Type ID: " + request.getMasterAgreementTypeId() +"," +
@@ -185,9 +190,10 @@ public class MasterAgreementService {
 
 
             // SQL query to select data from the 'offer' table based on the provided parameters
-            String selectSql = "SELECT domain_id, domain_name, role_name, experience_level, technologies_catalog, quote_price, offer_date, master_agreement_type_name, status " +
+            String selectSql = "SELECT role_id, domain_id, domain_name, role_name, experience_level, technologies_catalog, quote_price, offer_date, master_agreement_type_name, status " +
                     "FROM offer " +
-                    "WHERE domain_id = ? " +
+                    "WHERE role_id = ? " +
+                    "AND domain_id = ? " +
                     "AND domain_name = ? " +
                     "AND role_name = ? " +
                     "AND master_agreement_type_name = ?" +
@@ -195,6 +201,7 @@ public class MasterAgreementService {
 
             // Fetch the data from the 'offer' table based on the request
             List<Map<String, Object>> offers = jdbcTemplate.queryForList(selectSql,
+                    request.getRoleId(),
                     request.getDomainId(),
                     request.getDomainName(),
                     request.getRoleName(),
@@ -208,14 +215,16 @@ public class MasterAgreementService {
             }
 
             // SQL query to insert into role_offers
-            String insertSql = "INSERT INTO role_offer (id, role_name, experience_level, technologies_catalog, domain_name, domain_id, quote_price, master_agreement_type_id, " +
-                    "master_agreement_type_name, provider, bid_price ) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
+            String insertSql = "INSERT INTO role_offer (id, role_id, role_name, experience_level, " +
+                    "technologies_catalog, domain_name, domain_id, quote_price, master_agreement_type_id, " +
+                    " master_agreement_type_name, provider, bid_price ) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
             // Loop through the offers retrieved from the 'offer' table
             for (Map<String, Object> offer : offers) {
                 jdbcTemplate.update(insertSql,
                         request.getId(),
+                        offer.get("role_id"),
                         offer.get("role_name"),  // role_name
                         offer.get("experience_level"),  // experience_level
                         offer.get("technologies_catalog"),  // technologies_catalog

@@ -3,6 +3,7 @@ package com.fuas.providers_access_platform.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fuas.providers_access_platform.model.Domain;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MasterAgreementRequest {
@@ -16,7 +17,7 @@ public class MasterAgreementRequest {
     private String status;
     private String createdAt;
     @JsonProperty("agreementDetails")
-    private List<Domain> domains;
+    private List<Domain> domains = new ArrayList<>();
 
     public Integer getMasterAgreementTypeId() {
         return masterAgreementTypeId;
