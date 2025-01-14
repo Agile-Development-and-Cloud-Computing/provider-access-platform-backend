@@ -87,9 +87,10 @@ public class ProviderManagementController {
     @PostMapping("/offer-response")
     public ResponseEntity<Map<String, String>> postMaOfferResponse(@RequestBody Map<String, Object> request) {
         Long offerId = Long.valueOf(request.get("offerId").toString());
+        String offerCycle = String.valueOf(request.get("cycle").toString());
         Boolean isAccepted = Boolean.valueOf(request.get("isAccepted").toString());
 
-        providerManagementService.updateOfferResponse(offerId, isAccepted);
+        providerManagementService.updateOfferResponse(offerId, offerCycle, isAccepted);
 
         return ResponseEntity.ok(Map.of(
                 "status", "success",

@@ -31,6 +31,7 @@ public class RoleOffer {
     @JsonProperty("cycle")
     private String offerCycle;
     private Double bidPrice;
+    private Boolean isAccepted;
 
 
     public Long getId() {
@@ -137,6 +138,14 @@ public class RoleOffer {
         this.bidPrice = bidPrice;
     }
 
+    public Boolean getisAccepted() {
+        return isAccepted;
+    }
+
+    public void setisAccepted(Boolean accepted) {
+        isAccepted = accepted;
+    }
+
     @Override
     public String toString() {
         return "RoleOffer{" +
@@ -153,6 +162,7 @@ public class RoleOffer {
                 ", quotePrice=" + quotePrice +
                 ", offerCycle='" + offerCycle + '\'' +
                 ", bidPrice=" + bidPrice +
+                ", isAccepted=" + isAccepted +
                 '}';
     }
 }

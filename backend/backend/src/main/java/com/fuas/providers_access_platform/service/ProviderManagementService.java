@@ -100,12 +100,14 @@ public class ProviderManagementService {
         }).collect(Collectors.toList());
     }
 
-    public void updateOfferResponse(Long offerId, Boolean isAccepted) {
+    public void updateOfferResponse(Long offerId, String offerCycle, Boolean isAccepted) {
         // Fetch the record by offerId
         RoleOffer offer = roleOfferRepository.findById(offerId)
                 .orElseThrow(() -> new IllegalArgumentException("Offer with ID " + offerId + " not found."));
 
         // Update the isAccepted field;
+        offer.setisAccepted(isAccepted);
+        offer.setOfferCycle(offerCycle);
 
         // Save the updated offer back to the database
         roleOfferRepository.save(offer);
