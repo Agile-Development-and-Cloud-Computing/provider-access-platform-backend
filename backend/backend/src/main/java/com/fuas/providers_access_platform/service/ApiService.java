@@ -33,6 +33,9 @@ public class ApiService {
 
 
     public void fetchAndInsertAgreements() {
+
+        deleteExistingData();
+
         // Fetch agreements from external API
         List<MasterAgreementRequest> agreements = webClient.get()
                 .uri("/all-open-agreements")
@@ -86,6 +89,20 @@ public class ApiService {
         } else {
             System.out.println("No agreements found in the external API response.");
         }
+    }
+
+
+
+    private void deleteExistingData() {
+        // Run SQL delete queries to clear the relevant data before inserting new data
+        String deleteMasterAgreementTypesSql = "DELETE FROM master_agreement_types";
+        String deleteOfferSql = "DELETE FROM offer";
+
+        // Execute the delete queries using jdbcTemplate
+        jdbcTemplate.update(deleteMasterAgreementTypesSql);
+        jdbcTemplate.update(deleteOfferSql);
+
+        System.out.println("Existing data deleted from the database.");
     }
 
     private String formatDateForSQL(String date) {
