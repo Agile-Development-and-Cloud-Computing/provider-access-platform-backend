@@ -21,6 +21,7 @@ public class LoginController {
 
     private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 
+    /*
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResponseEntity<CommonResponse<Map<String, Object>>> processLogin(@RequestBody LoginRequest inputPayload) {
 
@@ -32,6 +33,18 @@ public class LoginController {
             return ResponseEntity.ok(response);
         } else {
             return ResponseEntity.status(401).body(response); // Unauthorized if authentication fails
+        }
+    }
+*/
+
+    @RequestMapping(value = "/login", method = RequestMethod.POST)
+    public ResponseEntity<CommonResponse<Map<String, Object>>> processLogin(@RequestBody LoginRequest inputPayload) {
+        CommonResponse<Map<String, Object>> response = loginService.simplifiedAuthenticate(inputPayload, logger);
+
+        if (response.isSuccess()) {
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.status(401).body(response);
         }
     }
 

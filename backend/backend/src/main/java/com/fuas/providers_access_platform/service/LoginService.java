@@ -3,6 +3,7 @@ package com.fuas.providers_access_platform.service;
 import com.fuas.providers_access_platform.dto.*;
 import com.fuas.providers_access_platform.model.User;
 import com.fuas.providers_access_platform.repository.UserRepository;
+
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,9 @@ public class LoginService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private JwtService jwtService;
+    /*
     public CommonResponse<Map<String, Object>> simplifiedAuthenticate(LoginRequest inputPayload, Logger logger) {
         // Log the incoming request if needed
         logger.info("Attempting to authenticate user: {}", inputPayload.getUsername());
@@ -32,6 +36,23 @@ public class LoginService {
             return new CommonResponse<>(true, "Login is successful",response);
         } else {
             // Authentication failed, return error message
+            return new CommonResponse<>(false, "Invalid username or password", null);
+        }
+    }
+    */
+
+    public CommonResponse<Map<String, Object>> simplifiedAuthenticate(LoginRequest inputPayload, Logger logger) {
+        logger.info("Authenticating user: {}", inputPayload.getUsername());
+
+        User user = userRepository.findByUsername(inputPayload.getUsername());
+
+        if (user != null && user.getPassword().equals(inputPayload.getPassword())) {
+            String token = jwtService.generateToken(user.getUsername(), user.getUserType());
+            Map<String, Object> response = new LinkedHashMap<>();
+            response.put("token", token);
+            response.put("userType", user.getUserType());
+            return new CommonResponse<>(true, "Login successful", response);
+        } else {
             return new CommonResponse<>(false, "Invalid username or password", null);
         }
     }
