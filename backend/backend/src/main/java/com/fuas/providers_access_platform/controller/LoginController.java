@@ -21,21 +21,6 @@ public class LoginController {
 
     private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 
-    /*
-    @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public ResponseEntity<CommonResponse<Map<String, Object>>> processLogin(@RequestBody LoginRequest inputPayload) {
-
-        // Call the simplified authenticate method in the LoginService
-        CommonResponse<Map<String, Object>> response = loginService.simplifiedAuthenticate(inputPayload, logger);
-
-        // Return the response directly
-        if (response.isSuccess()) {
-            return ResponseEntity.ok(response);
-        } else {
-            return ResponseEntity.status(401).body(response); // Unauthorized if authentication fails
-        }
-    }
-*/
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResponseEntity<CommonResponse<Map<String, Object>>> processLogin(@RequestBody LoginRequest inputPayload) {

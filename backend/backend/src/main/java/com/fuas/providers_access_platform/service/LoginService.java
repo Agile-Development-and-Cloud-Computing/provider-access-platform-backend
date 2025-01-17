@@ -20,26 +20,6 @@ public class LoginService {
 
     @Autowired
     private JwtService jwtService;
-    /*
-    public CommonResponse<Map<String, Object>> simplifiedAuthenticate(LoginRequest inputPayload, Logger logger) {
-        // Log the incoming request if needed
-        logger.info("Attempting to authenticate user: {}", inputPayload.getUsername());
-
-        // Try to fetch the user from the database based on the username
-        User user = userRepository.findByUsername(inputPayload.getUsername());
-
-        // Check if user is found and password matches
-        if (user != null && user.getPassword().equals(inputPayload.getPassword())) {
-            // Authentication successful, return user data in CommonResponse
-            Map<String, Object> response = new LinkedHashMap<>();
-            response.put("userType",user.getUserType());
-            return new CommonResponse<>(true, "Login is successful",response);
-        } else {
-            // Authentication failed, return error message
-            return new CommonResponse<>(false, "Invalid username or password", null);
-        }
-    }
-    */
 
     public CommonResponse<Map<String, Object>> simplifiedAuthenticate(LoginRequest inputPayload, Logger logger) {
         logger.info("Authenticating user: {}", inputPayload.getUsername());
