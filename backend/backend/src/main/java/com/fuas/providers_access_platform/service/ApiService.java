@@ -35,7 +35,7 @@ public class ApiService {
                 .baseUrl("https://agiledev-contractandprovidermana-production.up.railway.app/master-agreements")
                 .build();
         this.serviceRequestWebClient = webClientBuilder
-                .baseUrl("http://localhost:3001")
+                .baseUrl("https://service-management-backend-production.up.railway.app/api/service-requests")
                 .build();
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -107,7 +107,7 @@ public class ApiService {
 
         // Fetch service requests from the external API
         List<ServiceRequest> serviceRequests = serviceRequestWebClient.get()
-                .uri("/service_request")
+                .uri("/published")
                 .retrieve()
                 .bodyToFlux(ServiceRequest.class)
                 .collectList()
