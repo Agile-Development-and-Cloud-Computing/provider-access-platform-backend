@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/service-request")
 @CrossOrigin(origins = "http://localhost:3000")
 public class RequestManagementController {
 
@@ -45,8 +45,8 @@ public class RequestManagementController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<List<Map<String,Object>>> getServiceRequests(@PathVariable Long userId) {
-        List<Map<String,Object>> serviceRequests = requestManagementService.getServiceRequestsForUser(userId);
-        return ResponseEntity.ok(serviceRequests);
+    public ResponseEntity<CommonResponse<List<Map<String, Object>>>> getServiceRequests(@PathVariable Long userId) {
+        CommonResponse<List<Map<String, Object>>> response = requestManagementService.getServiceRequestsForUser(userId);
+        return ResponseEntity.ok(response);
     }
 }

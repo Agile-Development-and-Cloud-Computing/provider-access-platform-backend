@@ -66,16 +66,13 @@ public class RequestManagementService {
     }
 
 
-    public List<Map<String,Object>> getServiceRequestsForUser(Long userId) {
+    public CommonResponse<List<Map<String,Object>>> getServiceRequestsForUser(Long userId) {
         // Fetch the cycle status of the user based on their user ID
         String cycleStatusSql = "SELECT cycle_status FROM user WHERE provider_id = ?";
         String cycleStatus = jdbcTemplate.queryForObject(cycleStatusSql, new Object[]{userId}, String.class);
 
-        // If no cycle status is found for the user, return an empty list
-        if (cycleStatus == null) {
-            return Collections.emptyList();
-        }
 
+        System.out.println("Before Query");
         String sql = "SELECT " +
                 "sat.service_request_id, " +
                 "sat.agreement_id, " +
@@ -106,6 +103,9 @@ public class RequestManagementService {
         // Query the database
         List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, cycleStatus);
 
+        if (rows.isEmpty()) {
+            return new CommonResponse<>( false, "No service requests found for the specified cycle status.", null);
+        }
         // To hold the final response
         List<Map<String, Object>> serviceRequestsList = new ArrayList<>();
 
@@ -160,7 +160,7 @@ public class RequestManagementService {
 
         // Convert the map values to the final list of results
         serviceRequestsList.addAll(serviceRequestsMap.values());
-        return serviceRequestsList;
+        return new CommonResponse<>(true, "Service requests fetched successfully.", serviceRequestsList);
     }
 }
 
