@@ -3,6 +3,7 @@ package com.fuas.providers_access_platform.controller;
 
 import com.fuas.providers_access_platform.dto.BidRequest;
 import com.fuas.providers_access_platform.dto.CommonResponse;
+import com.fuas.providers_access_platform.dto.ServiceRequest;
 import com.fuas.providers_access_platform.service.RequestManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -41,5 +42,11 @@ public class RequestManagementController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new CommonResponse(false, "Error accepting the order", null));
         }
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<List<Map<String,Object>>> getServiceRequests(@PathVariable Long userId) {
+        List<Map<String,Object>> serviceRequests = requestManagementService.getServiceRequestsForUser(userId);
+        return ResponseEntity.ok(serviceRequests);
     }
 }
