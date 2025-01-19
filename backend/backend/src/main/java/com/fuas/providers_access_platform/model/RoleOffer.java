@@ -26,6 +26,7 @@ public class RoleOffer {
     private Integer masterAgreementTypeId;
     private String masterAgreementTypeName;
     private String provider;
+    private Integer providerId;
     @JsonProperty("price")
     private Double quotePrice;
     @JsonProperty("cycle")
@@ -114,6 +115,14 @@ public class RoleOffer {
         this.provider = provider;
     }
 
+    public Integer getProviderId() {
+        return providerId;
+    }
+
+    public void setProviderId(Integer providerId) {
+        this.providerId = providerId;
+    }
+
     public Double getQuotePrice() {
         return quotePrice;
     }
@@ -159,6 +168,7 @@ public class RoleOffer {
                 ", masterAgreementTypeId=" + masterAgreementTypeId +
                 ", masterAgreementTypeName='" + masterAgreementTypeName + '\'' +
                 ", provider='" + provider + '\'' +
+                ", providerId=" + providerId +
                 ", quotePrice=" + quotePrice +
                 ", offerCycle='" + offerCycle + '\'' +
                 ", bidPrice=" + bidPrice +

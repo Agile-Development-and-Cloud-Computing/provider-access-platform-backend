@@ -90,12 +90,9 @@ public class ApiService {
                                         agreement.getMasterAgreementTypeId());
                             });
                         });
+                        System.out.println("Agreements successfully inserted into the database.");
                     }
                 });
-
-
-                System.out.println("Agreements successfully inserted into the database.");
-
         } else {
             System.out.println("No agreements found in the external API response.");
         }
@@ -115,7 +112,6 @@ public class ApiService {
 
 
         if (serviceRequests != null && !serviceRequests.isEmpty()) {
-
 
             // Insert each service request into the database
             serviceRequests.forEach(serviceRequest -> {
@@ -162,11 +158,9 @@ public class ApiService {
                                 member.getTechnologyLevel(),
                                 member.getId());
                     });
-
+                    System.out.println("Service Requests successfully inserted into the database.");
                 }
             });
-
-            System.out.println("Service Requests successfully inserted into the database.");
         } else {
             System.out.println("No service requests found in the external API response.");
         }
@@ -185,22 +179,6 @@ public class ApiService {
         return count != null && count > 0;
     }
 
-    private void deleteExistingData() {
-        // Run SQL delete queries to clear the relevant data before inserting new data
-        String deleteMasterAgreementTypesSql = "DELETE FROM master_agreement_types";
-        String deleteOfferSql = "DELETE FROM offer";
-
-        String deleteserviceAgreementTypesSql = "DELETE FROM service_agreement_types";
-        String deleteServiceRequestSql = "DELETE FROM service_request";
-
-        jdbcTemplate.update(deleteserviceAgreementTypesSql);
-        jdbcTemplate.update(deleteServiceRequestSql);
-        // Execute the delete queries using jdbcTemplate
-        jdbcTemplate.update(deleteMasterAgreementTypesSql);
-        jdbcTemplate.update(deleteOfferSql);
-
-        System.out.println("Existing data deleted from the database.");
-    }
 
     private String formatDateForSQL(String date) {
         if (date == null || date.isEmpty()) {

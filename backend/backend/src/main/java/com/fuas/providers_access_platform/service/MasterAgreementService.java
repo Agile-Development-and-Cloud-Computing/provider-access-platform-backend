@@ -186,7 +186,9 @@ public class MasterAgreementService {
                     "Role Name: " + request.getRoleName() + ", " +
                     "Master Agreement Type Name: " + request.getMasterAgreementTypeName() + ", " +
                     "Master Agreement Type ID: " + request.getMasterAgreementTypeId() +"," +
-                    "Experience Level :" + request.getExperienceLevel());
+                    "Experience Level :" + request.getExperienceLevel() +"," +
+                    "Provider Name :" + request.getProvider() +"," +
+                    "Provider ID :" + request.getProviderId());
 
 
             // SQL query to select data from the 'offer' table based on the provided parameters
@@ -217,8 +219,8 @@ public class MasterAgreementService {
             // SQL query to insert into role_offers
             String insertSql = "INSERT INTO role_offer (id, role_id, role_name, experience_level, " +
                     "technologies_catalog, domain_name, domain_id, quote_price, master_agreement_type_id, " +
-                    " master_agreement_type_name, provider, bid_price ) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    " master_agreement_type_name, provider, bid_price, provider_id ) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
             // Loop through the offers retrieved from the 'offer' table
             for (Map<String, Object> offer : offers) {
@@ -234,7 +236,8 @@ public class MasterAgreementService {
                         request.getMasterAgreementTypeId(),  // master_agreement_type_id from request
                         request.getMasterAgreementTypeName(),  // master_agreement_type_name from request
                         request.getProvider(),  // provider from request
-                        request.getBidPrice() // quote_price from request
+                        request.getBidPrice(), // quote_price from request
+                        request.getProviderId()
 
                 );
             }
