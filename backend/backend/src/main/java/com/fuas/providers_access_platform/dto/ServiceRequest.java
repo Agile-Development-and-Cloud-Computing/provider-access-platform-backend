@@ -1,6 +1,7 @@
 package com.fuas.providers_access_platform.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fuas.providers_access_platform.model.Employee;
 
 import java.lang.reflect.Member;
 import java.util.List;
@@ -26,6 +27,7 @@ public class ServiceRequest {
     private String informationForProviderManager;
     private List<SelectedMember> selectedMembers;
     private List<String> notifications;
+    private List<Employee> employeesDetails;
 
 
     public static class SelectedMember {
@@ -242,7 +244,13 @@ public class ServiceRequest {
         this.notifications = notifications;
     }
 
+    public List<Employee> getEmployeesDetails() {
+        return employeesDetails;
+    }
 
+    public void setEmployeesDetails(List<Employee> employeesDetails) {
+        this.employeesDetails = employeesDetails;
+    }
 
     @Override
     public String toString() {
@@ -265,6 +273,7 @@ public class ServiceRequest {
                 ", informationForProviderManager='" + informationForProviderManager + '\'' +
                 ", selectedMembers=" + selectedMembers +
                 ", notifications=" + notifications +
+                ", employeesDetails=" + employeesDetails +
                 '}';
     }
 }

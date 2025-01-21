@@ -71,8 +71,6 @@ public class RequestManagementService {
         String cycleStatusSql = "SELECT cycle_status FROM user WHERE provider_id = ?";
         String cycleStatus = jdbcTemplate.queryForObject(cycleStatusSql, new Object[]{userId}, String.class);
 
-
-        System.out.println("Before Query");
         String sql = "SELECT " +
                 "sat.service_request_id, " +
                 "sat.agreement_id, " +
@@ -162,6 +160,7 @@ public class RequestManagementService {
         serviceRequestsList.addAll(serviceRequestsMap.values());
         return new CommonResponse<>(true, "Service requests fetched successfully.", serviceRequestsList);
     }
+
 }
 
 

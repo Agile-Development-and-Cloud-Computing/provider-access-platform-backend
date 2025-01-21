@@ -20,30 +20,30 @@ public class EmployeeService {
 
     // Method to get the list of employees for a specific provider
     public List<Map<String, Object>> getEmployees(Integer providerId) {
-        String sql = "SELECT employee_id, employee_name, role, experience_level, skills " +
-                "FROM employees WHERE provider_id = ?";
+        String sql = "SELECT employee_id, employee_name, role, level, technology_level " +
+                "FROM employee WHERE provider_id = ?";
 
         return jdbcTemplate.query(sql, new Object[]{providerId}, (rs, rowNum) -> {
             Map<String, Object> employee = new LinkedHashMap<>();
             employee.put("employeeId", rs.getInt("employee_id"));
             employee.put("employeeName", rs.getString("employee_name"));
             employee.put("role", rs.getString("role"));
-            employee.put("experienceLevel", rs.getString("experience_level"));
-            employee.put("skills", rs.getString("skills"));
+            employee.put("level", rs.getString("level"));
+            employee.put("technology_level", rs.getString("technology_level"));
             return employee;
         });
     }
 
     // Method to add a new employee
     public CommonResponse addEmployee(Employee employee) {
-        String sql = "INSERT INTO employees (employee_name, role, experience_level, skills, provider_id) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO employees (employee_name, role, level, technology_level, provider_id) VALUES (?, ?, ?, ?, ?)";
 
         try {
             jdbcTemplate.update(sql,
                     employee.getEmployeeName(),
                     employee.getRole(),
-                    employee.getExperienceLevel(),
-                    employee.getSkills(),
+                    employee.getLevel(),
+                    employee.getTechnologyLevel(),
                     employee.getProviderId()
             );
             return new CommonResponse(true, "Employee successfully added",employee);
@@ -56,14 +56,14 @@ public class EmployeeService {
 
     // Method to update an existing employee's details
     public CommonResponse updateEmployee(Integer employeeId, Employee employee) {
-        String sql = "UPDATE employees SET employee_name = ?, role = ?, experience_level = ?, skills = ? WHERE employee_id = ?";
+        String sql = "UPDATE employees SET employee_name = ?, role = ?, level = ?, technology_level = ? WHERE employee_id = ?";
 
         try {
             jdbcTemplate.update(sql,
                     employee.getEmployeeName(),
                     employee.getRole(),
-                    employee.getExperienceLevel(),
-                    employee.getSkills(),
+                    employee.getLevel(),
+                    employee.getTechnologyLevel(),
                     employeeId
             );
             return new CommonResponse(true, "Employee successfully updated", null);
@@ -85,7 +85,7 @@ public class EmployeeService {
 
     }
 
-
+/*
     public CommonResponse uploadProfile(Employee employeeRequest) {
         // Validate the service request and employee existence
         String checkQueryServiceRequest = "SELECT COUNT(*) FROM service_requests WHERE service_id = ?";
@@ -108,18 +108,18 @@ public class EmployeeService {
 
         return new CommonResponse (true, "Profile uploaded successfully", null);
     }
-
+    */
 
     public CommonResponse <List <Map<String,Object>>> getSuggestions(String knowledgeKeyword) {
         String query = """
         SELECT 
             e.employee_id AS employee_id, 
             e.employee_name AS employee_name, 
-            e.skills AS knowledge, 
+            e.technologyLevel AS knowledge, 
             e.experience_level AS experience, 
-            e.skills AS skills
+            e.technologyLevel AS technologyLevel
         FROM employees e
-        WHERE e.skills LIKE ?
+        WHERE e.technologyLevel LIKE ?
         ORDER BY e.experience_level DESC
         """;
 
@@ -132,7 +132,7 @@ public class EmployeeService {
                     response.put("employeeName", rs.getString("employee_name"));
                     response.put("knowledge", rs.getString("knowledge"));
                     response.put("experience", rs.getString("experience"));
-                    response.put("skills", rs.getString("skills"));
+                    response.put("technologyLevel", rs.getString("technologyLevel"));
                     return response;
                 }
         );

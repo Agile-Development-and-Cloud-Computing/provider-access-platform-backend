@@ -13,6 +13,7 @@ public class User {
     private String userType;
     private String email;
     private Long id;
+    private Integer providerId;
 
     // Constructors, getters, setters, etc.
 
@@ -59,5 +60,25 @@ public class User {
 
     public Long setId(Long id) {this.id = id;
         return id;
+    }
+
+    public Integer getProviderId() {
+        return providerId;
+    }
+
+    public void setProviderId(Integer providerId) {
+        this.providerId = providerId;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", userType='" + userType + '\'' +
+                ", email='" + email + '\'' +
+                ", id=" + id +
+                ", providerId=" + providerId +
+                '}';
     }
 }

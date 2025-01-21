@@ -31,6 +31,8 @@ public class LoginService {
             Map<String, Object> response = new LinkedHashMap<>();
             response.put("token", token);
             response.put("userType", user.getUserType());
+            response.put("email",user.getEmail());
+            response.put("providerId",user.getProviderId());
             return new CommonResponse<>(true, "Login successful", response);
         } else {
             return new CommonResponse<>(false, "Invalid username or password", null);

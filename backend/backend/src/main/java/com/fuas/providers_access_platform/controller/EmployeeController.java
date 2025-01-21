@@ -46,12 +46,12 @@ public class EmployeeController {
         return response;
     }
 
-
+    /*
     @PostMapping("/upload")
     public CommonResponse uploadEmployeeProfile( @RequestBody Employee employeeRequest) {
         CommonResponse response = employeeService.uploadProfile(employeeRequest);
         return response;
-    }
+    }*/
 
     @GetMapping("/suggestions")
     public CommonResponse <List<Map<String, Object>>> getEmployeeSuggestions(@RequestParam String knowledgeKeyword) {
