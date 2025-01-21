@@ -14,8 +14,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
 
 @RestController
@@ -68,12 +69,14 @@ public class RequestManagementController {
 
     @GetMapping("/published/{providerId}")
     public ResponseEntity<List<LinkedHashMap<String, Object>>> getServiceRequest(@PathVariable Long providerId) {
+        Logger logger = LoggerFactory.getLogger(getClass());
         try {
             RestTemplate restTemplate = new RestTemplate();
             String cycleStatusSql = "SELECT cycle_status FROM user WHERE provider_id = ?";
             String cycleStatus = jdbcTemplate.queryForObject(cycleStatusSql, new Object[]{providerId}, String.class);
 
-            // Fetch data from both APIs
+            logger.info("Fetching service requests for providerId: {} with cycleStatus: {}", providerId, cycleStatus);
+
             ResponseEntity<String> response1 = restTemplate.getForEntity(API_URL_1, String.class);
             ResponseEntity<String> response2 = restTemplate.getForEntity(API_URL_2, String.class);
 
@@ -81,45 +84,37 @@ public class RequestManagementController {
             JsonNode root1 = objectMapper.readTree(response1.getBody());
             JsonNode root2 = objectMapper.readTree(response2.getBody());
 
-            // Extract service request lists safely
-            JsonNode serviceRequests1 = root1.isArray() ? root1 : null;
-            JsonNode serviceRequests2 = root2.get("listServiceRequests");
-
             List<LinkedHashMap<String, Object>> formattedRequests = new ArrayList<>();
 
-            // Process the first API response (if it's an array)
-            if (serviceRequests1 != null && serviceRequests1.isArray()) {
-                processServiceRequests(serviceRequests1, cycleStatus,formattedRequests);
+            logger.info("Processing first API response");
+            if (root1.isArray()) {
+                processServiceRequests(root1, cycleStatus, formattedRequests);
             }
 
-            // Process the second API response (if it contains listServiceRequests)
-            if (serviceRequests2 != null && serviceRequests2.isArray()) {
-                processServiceRequests(serviceRequests2, cycleStatus,formattedRequests);
+            logger.info("Processing second API response");
+            if (root2.isArray()) {
+                processServiceRequests(root2, cycleStatus, formattedRequests);
             }
 
-            // Print the final result
-            formattedRequests.forEach(System.out::println);
+            logger.info("Total requests processed: {}", formattedRequests.size());
             return ResponseEntity.ok(formattedRequests);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error fetching service requests", e);
             return ResponseEntity.badRequest().body(null);
         }
     }
 
 
-    private static void processServiceRequests(JsonNode serviceRequests, String cycleStatus,List<LinkedHashMap<String, Object>> formattedRequests) {
+    private static void processServiceRequests(JsonNode serviceRequests, String cycleStatus, List<LinkedHashMap<String, Object>> formattedRequests) {
         for (JsonNode request : serviceRequests) {
             LinkedHashMap<String, Object> requestMap = new LinkedHashMap<>();
 
             String requestCycleStatus = getField(request, "cycleStatus", "cycle").toString();
-            // Filter based on cycle status
             if (!requestCycleStatus.equals(cycleStatus)) {
-                continue;  // Skip requests that don't match the cycle status
+                continue;
             }
 
-
-            // Handling differences in field names across APIs
             requestMap.put("ServiceRequestId", getField(request, "ServiceRequestId", "requestID"));
             requestMap.put("agreementId", getField(request, "agreementId", "masterAgreementID"));
             requestMap.put("agreementName", getField(request, "agreementName", "masterAgreementName"));
@@ -131,12 +126,12 @@ public class RequestManagementController {
             requestMap.put("location", getField(request, "location", "location"));
             requestMap.put("type", getField(request, "type", "requestType"));
             requestMap.put("cycleStatus", getField(request, "cycleStatus", "cycle"));
-            requestMap.put("numberOfSpecialists", getField(request, "numberOfSpecialists", "isApproved"));
+            requestMap.put("numberOfSpecialists", getField(request, "numberOfSpecialists"));
             requestMap.put("consumer", getField(request, "consumer", "consumer"));
             requestMap.put("informationForProviderManager", getField(request, "informationForProviderManager", "providerManagerInfo"));
             requestMap.put("locationType", getField(request, "locationType", "locationType"));
+            requestMap.put("numberOfOffers", getField(request, "numberOfOffers"));
 
-            // Handling nested fields: selectedMembers -> roleSpecific
             List<LinkedHashMap<String, Object>> selectedMembersList = new ArrayList<>();
             JsonNode selectedMembers = request.has("selectedMembers") ? request.get("selectedMembers") : request.get("roleSpecific");
 
@@ -148,14 +143,13 @@ public class RequestManagementController {
                     memberMap.put("role", getField(member, "role", "role"));
                     memberMap.put("level", getField(member, "level", "level"));
                     memberMap.put("technologyLevel", getField(member, "technologyLevel", "technologyLevel"));
+                    memberMap.put("numberOfEmployee", getField(member, "numberOfEmployee", "numberOfEmployee"));
                     memberMap.put("_id", member.has("_id") ? member.get("_id").asText() : member.get("roleID").asText());
                     selectedMembersList.add(memberMap);
                 }
             }
 
             requestMap.put("selectedMembers", selectedMembersList);
-
-            // Handling list fields
             requestMap.put("representatives", getListFromField(request, "representatives", "representatives"));
             requestMap.put("notifications", getListFromField(request, "notifications", "notifications"));
 

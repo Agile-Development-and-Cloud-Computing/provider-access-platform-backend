@@ -31,7 +31,7 @@ public class SecurityConfig {
         // Disable CSRF for all requests (as it is unnecessary for stateless API)
         http.csrf(csrf -> csrf.disable()) // `csrf().disable()` still works here
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/login", "/api/service-request/published/{providerId}", "/api/provider/master-agreements","api/provider/bid").permitAll() // Whitelist these URLs
+                        .requestMatchers("/api/login", "/api/service-request/published/{providerId}", "/api/provider/master-agreements","api/provider/bid","/api/employees/{providerId}").permitAll() // Whitelist these URLs
                         .anyRequest().authenticated()  // Require authentication for other requests
                 )
                 .sessionManagement(session -> session
