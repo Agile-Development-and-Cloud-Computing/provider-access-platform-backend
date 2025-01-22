@@ -84,15 +84,23 @@ public class RequestManagementService {
                 "sr.is_approved, " +
                 "so.offer_id, " +
                 "so.provider_name, " +
+                "so.provider_id, " +
                 "so.employee_id, " +
                 "so.role, " +
                 "so.level, " +
                 "so.technology_level, " +
                 "so.location_type, " +
                 "so.domain_id, " +
-                "so.domain_name " +
+                "so.domain_name, " +
+                "so.user_id, " +
+                "ro.bid_price " +
                 "FROM service_request sr " +
                 "LEFT JOIN service_offers so ON sr.request_id = so.request_id " +
+                "LEFT JOIN role_offer ro ON so.provider_id = ro.provider_id " +
+                "AND so.role = ro.role_name " +
+                "AND so.level = ro.experience_level " +
+                "AND so.technology_level = ro.technologies_catalog " +
+                "AND sr.master_agreement_id = ro.master_agreement_type_id " +
                 "WHERE sr.is_approved = 0";
 
         List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
@@ -109,7 +117,7 @@ public class RequestManagementService {
             Map<String, Object> serviceRequest = serviceRequestsMap.get(requestId);
             if (serviceRequest == null) {
                 serviceRequest = new LinkedHashMap<>();
-                serviceRequest.put("serviceRequestId",row.get("service_request_id"));
+                serviceRequest.put("serviceRequestId", row.get("service_request_id"));
                 serviceRequest.put("requestID", requestId);
                 serviceRequest.put("masterAgreementID", row.get("master_agreement_id"));
                 serviceRequest.put("masterAgreementName", row.get("master_agreement_name"));
@@ -129,13 +137,15 @@ public class RequestManagementService {
             Map<String, Object> serviceOffer = new LinkedHashMap<>();
             serviceOffer.put("offerId", row.get("offer_id"));
             serviceOffer.put("providerName", row.get("provider_name"));
+            serviceOffer.put("providerId", row.get("provider_id"));
             serviceOffer.put("employeeID", row.get("employee_id"));
             serviceOffer.put("role", row.get("role"));
             serviceOffer.put("level", row.get("level"));
             serviceOffer.put("technologyLevel", row.get("technology_level"));
-            serviceOffer.put("locationType", row.get("location_type"));
             serviceOffer.put("domainId", row.get("domain_id"));
             serviceOffer.put("domainName", row.get("domain_name"));
+            serviceOffer.put("userId",row.get("user_id"));
+            serviceOffer.put("price", row.get("bid_price"));
 
             List<Map<String, Object>> serviceOffers = (List<Map<String, Object>>) serviceRequest.get("serviceOffers");
             serviceOffers.add(serviceOffer);
@@ -177,8 +187,8 @@ public class RequestManagementService {
 
     private void saveServiceOffer(ServiceRequest.ServiceOffer offer, String requestID) {
         String offerSql = "INSERT INTO service_offers (request_id, provider_id, provider_name, " +
-                "employee_id, role, level, technology_level, location_type, domain_Id, domain_name) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "employee_id, role, level, technology_level, location_type, domain_Id, domain_name, user_id) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         jdbcTemplate.update(offerSql,
                 requestID,
@@ -190,7 +200,8 @@ public class RequestManagementService {
                 offer.getTechnologyLevel(),
                 offer.getLocationType(),
                 offer.getDomainId(),
-                offer.getDomainName()
+                offer.getDomainName(),
+                offer.getUserId()
         );
     }
 

@@ -34,6 +34,7 @@ public class ServiceRequest {
         private String locationType;
         private Integer domainId;
         private String domainName;
+        private String userId;
 
         // Getters and Setters
 
@@ -109,6 +110,14 @@ public class ServiceRequest {
             this.domainName = domainName;
         }
 
+        public String getUserId() {
+            return userId;
+        }
+
+        public void setUserId(String userId) {
+            this.userId = userId;
+        }
+
         @Override
         public String toString() {
             return "ServiceOffer{" +
@@ -121,6 +130,7 @@ public class ServiceRequest {
                     ", locationType='" + locationType + '\'' +
                     ", domainId=" + domainId +
                     ", domainName='" + domainName + '\'' +
+                    ", userId='" + userId + '\'' +
                     '}';
         }
     }

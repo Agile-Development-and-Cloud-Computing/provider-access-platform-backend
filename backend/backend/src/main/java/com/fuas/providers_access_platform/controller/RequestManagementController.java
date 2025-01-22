@@ -145,7 +145,7 @@ public class RequestManagementController {
                     memberMap.put("level", getField(member, "level", "level"));
                     memberMap.put("technologyLevel", getField(member, "technologyLevel", "technologyLevel"));
                     memberMap.put("numberOfEmployee", getField(member, "numberOfEmployee", "numberOfEmployee"));
-                    memberMap.put("_id", member.has("_id") ? member.get("_id").asText() : member.get("roleID").asText());
+                    memberMap.put("_id", member.has("_id") ? member.get("_id").asText() : member.get("userID").asText());
                     selectedMembersList.add(memberMap);
                 }
             }
