@@ -81,7 +81,7 @@ public class RequestManagementService {
                 "sr.cycle_status, " +
                 "sr.number_of_specialists, " +
                 "sr.number_of_offers, " +
-                "sr.is_approved, " +
+                "sr.created_by, " +
                 "so.offer_id, " +
                 "so.provider_name, " +
                 "so.provider_id, " +
@@ -93,6 +93,7 @@ public class RequestManagementService {
                 "so.domain_id, " +
                 "so.domain_name, " +
                 "so.user_id, " +
+                "so.is_approved, " +
                 "ro.bid_price " +
                 "FROM service_request sr " +
                 "LEFT JOIN service_offers so ON sr.request_id = so.request_id " +
@@ -101,7 +102,7 @@ public class RequestManagementService {
                 "AND so.level = ro.experience_level " +
                 "AND so.technology_level = ro.technologies_catalog " +
                 "AND sr.master_agreement_id = ro.master_agreement_type_id " +
-                "WHERE sr.is_approved = 0";
+                "WHERE so.is_approved = 0";
 
         List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
 
@@ -130,6 +131,7 @@ public class RequestManagementService {
                 serviceRequest.put("numberOfSpecialists", row.get("number_of_specialists"));
                 serviceRequest.put("numberOfOffers", row.get("number_of_offers"));
                 serviceRequest.put("isApproved", row.get("is_approved"));
+                serviceRequest.put("createdBy", row.get("created_by"));
                 serviceRequest.put("serviceOffers", new ArrayList<>());
                 serviceRequestsMap.put(requestId, serviceRequest);
             }
@@ -161,7 +163,7 @@ public class RequestManagementService {
         // Insert into service_request table
         String requestSql = "INSERT INTO service_request (request_id, master_agreement_id, master_agreement_name, " +
                 "task_description, request_type, project, start_date, end_date, cycle_status, " +
-                "number_of_specialists, number_of_offers, is_approved) " +
+                "number_of_specialists, number_of_offers, created_by) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         jdbcTemplate.update(requestSql,
@@ -176,7 +178,7 @@ public class RequestManagementService {
                 request.getCycleStatus(),
                 request.getNumberOfSpecialists(),
                 request.getNumberOfOffers(),
-                request.isApproved()
+                request.getCreatedBy()
         );
 
         // Insert provider offers into service_offers table

@@ -1,5 +1,6 @@
 package com.fuas.providers_access_platform.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fuas.providers_access_platform.model.Employee;
 
@@ -22,6 +23,8 @@ public class ServiceRequest {
     private int numberOfSpecialists;
     private int numberOfOffers;
     private boolean isApproved;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String createdBy;
     private List<ServiceOffer> serviceOffers;
 
     public static class ServiceOffer {
@@ -248,6 +251,14 @@ public class ServiceRequest {
         this.serviceOffers = serviceOffers;
     }
 
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
     @Override
     public String toString() {
         return "ServiceRequest{" +
@@ -264,6 +275,7 @@ public class ServiceRequest {
                 ", numberOfSpecialists=" + numberOfSpecialists +
                 ", numberOfOffers=" + numberOfOffers +
                 ", isApproved=" + isApproved +
+                ", createdBy='" + createdBy + '\'' +
                 ", serviceOffers=" + serviceOffers +
                 '}';
     }

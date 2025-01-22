@@ -144,7 +144,7 @@ public class RequestManagementController {
                     memberMap.put("role", getField(member, "role", "role"));
                     memberMap.put("level", getField(member, "level", "level"));
                     memberMap.put("technologyLevel", getField(member, "technologyLevel", "technologyLevel"));
-                    memberMap.put("numberOfEmployee", getField(member, "numberOfEmployee", "numberOfEmployee"));
+                    memberMap.put("numberOfEmployee", getField(member, "numberOfEmployee", "numberOfProfilesNeeded"));
                     memberMap.put("_id", member.has("_id") ? member.get("_id").asText() : member.get("userID").asText());
                     selectedMembersList.add(memberMap);
                 }
@@ -153,6 +153,8 @@ public class RequestManagementController {
             requestMap.put("selectedMembers", selectedMembersList);
             requestMap.put("representatives", getListFromField(request, "representatives", "representatives"));
             requestMap.put("notifications", getListFromField(request, "notifications", "notifications"));
+            requestMap.put("createdBy", request.has("createdBy") ? request.get("createdBy").asText() : "Unknown");
+            System.out.println("CreatedBy: " + request.get("createdBy"));
 
             formattedRequests.add(requestMap);
         }
