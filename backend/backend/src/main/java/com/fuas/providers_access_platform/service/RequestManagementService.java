@@ -10,8 +10,11 @@ import com.fuas.providers_access_platform.repository.RoleOfferRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.sql.Date;  // Make sure to import java.sql.Date
+import java.time.LocalDate;
 import java.util.stream.Collectors;
 
 @Service
@@ -159,6 +162,55 @@ public class RequestManagementService {
         // Convert the map values to the final list of results
         serviceRequestsList.addAll(serviceRequestsMap.values());
         return new CommonResponse<>(true, "Service requests fetched successfully.", serviceRequestsList);
+    }
+
+
+    @Transactional
+    public void processServiceRequest(ServiceRequest request) {
+        // Insert into service_request table
+        String requestSql = "INSERT INTO service_request (request_id, master_agreement_id, master_agreement_name, " +
+                "task_description, request_type, project, start_date, end_date, cycle_status, " +
+                "number_of_specialists, number_of_offers, is_approved) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        jdbcTemplate.update(requestSql,
+                request.getRequestID(),
+                request.getMasterAgreementID(),
+                request.getMasterAgreementName(),
+                request.getTaskDescription(),
+                request.getRequestType(),
+                request.getProject(),
+                Date.valueOf(request.getStartDate()),
+                Date.valueOf(request.getEndDate()),
+                request.getCycleStatus(),
+                request.getNumberOfSpecialists(),
+                request.getNumberOfOffers(),
+                request.isApproved()
+        );
+
+        // Insert provider offers into service_offers table
+        for (ServiceRequest.ServiceOffer offer : request.getServiceOffers()) {
+            saveServiceOffer(offer, request.getRequestID());
+        }
+    }
+
+    private void saveServiceOffer(ServiceRequest.ServiceOffer offer, String requestID) {
+        String offerSql = "INSERT INTO service_offers (request_id, provider_id, provider_name, " +
+                "employee_id, role, level, technology_level, location_type, domain_Id, domain_name) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        jdbcTemplate.update(offerSql,
+                requestID,
+                offer.getProviderID(),
+                offer.getProviderName(),
+                offer.getEmployeeID(),
+                offer.getRole(),
+                offer.getLevel(),
+                offer.getTechnologyLevel(),
+                offer.getLocationType(),
+                offer.getDomainId(),
+                offer.getDomainName()
+        );
     }
 
 }

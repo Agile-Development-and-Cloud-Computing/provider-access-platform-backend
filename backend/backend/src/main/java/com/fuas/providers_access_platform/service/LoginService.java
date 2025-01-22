@@ -33,6 +33,7 @@ public class LoginService {
             response.put("userType", user.getUserType());
             response.put("email",user.getEmail());
             response.put("providerId",user.getProviderId());
+            response.put("providerName",user.getProviderName());
             return new CommonResponse<>(true, "Login successful", response);
         } else {
             return new CommonResponse<>(false, "Invalid username or password", null);

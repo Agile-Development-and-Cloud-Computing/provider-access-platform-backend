@@ -4,55 +4,61 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fuas.providers_access_platform.model.Employee;
 
 import java.lang.reflect.Member;
+import java.time.LocalDate;
 import java.util.List;
 
 public class ServiceRequest {
 
-    @JsonProperty("ServiceRequestId")
-    private String serviceRequestId;
-    private int agreementId;
-    private String agreementName;
+    private String requestID;
+    private int masterAgreementID;
+    private String masterAgreementName;
     private String taskDescription;
+    private String requestType;
     private String project;
-    private String begin;
-    private String end;
-    private int amountOfManDays;
-    private String location;
-    private String type;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private String cycleStatus;
+    private String selectedDomainName;
     private int numberOfSpecialists;
     private int numberOfOffers;
-    private String consumer;
-    private String locationType;
-    private String informationForProviderManager;
-    private List<SelectedMember> selectedMembers;
-    private List<String> notifications;
-    private List<Employee> employeesDetails;
+    private boolean isApproved;
+    private List<ServiceOffer> serviceOffers;
 
-
-    public static class SelectedMember {
-        private int domainId;
-        private String domainName;
+    public static class ServiceOffer {
+        private String providerID;
+        private String providerName;
+        private String employeeID;
         private String role;
         private String level;
         private String technologyLevel;
-        @JsonProperty("_id")
-        private String id;
+        private String locationType;
+        private Integer domainId;
+        private String domainName;
 
-        public int getDomainId() {
-            return domainId;
+        // Getters and Setters
+
+        public String getProviderID() {
+            return providerID;
         }
 
-        public void setDomainId(int domainId) {
-            this.domainId = domainId;
+        public void setProviderID(String providerID) {
+            this.providerID = providerID;
         }
 
-        public String getDomainName() {
-            return domainName;
+        public String getProviderName() {
+            return providerName;
         }
 
-        public void setDomainName(String domainName) {
-            this.domainName = domainName;
+        public void setProviderName(String providerName) {
+            this.providerName = providerName;
+        }
+
+        public String getEmployeeID() {
+            return employeeID;
+        }
+
+        public void setEmployeeID(String employeeID) {
+            this.employeeID = employeeID;
         }
 
         public String getRole() {
@@ -79,49 +85,69 @@ public class ServiceRequest {
             this.technologyLevel = technologyLevel;
         }
 
-        public String getId() {
-            return id;
+        public String getLocationType() {
+            return locationType;
         }
 
-        public void setId(String id) {
-            this.id = id;
+        public void setLocationType(String locationType) {
+            this.locationType = locationType;
+        }
+
+        public Integer getDomainId() {
+            return domainId;
+        }
+
+        public void setDomainId(Integer domainId) {
+            this.domainId = domainId;
+        }
+
+        public String getDomainName() {
+            return domainName;
+        }
+
+        public void setDomainName(String domainName) {
+            this.domainName = domainName;
         }
 
         @Override
         public String toString() {
-            return "SelectedMember{" +
-                    "domainId=" + domainId +
-                    ", domainName='" + domainName + '\'' +
+            return "ServiceOffer{" +
+                    "providerID='" + providerID + '\'' +
+                    ", providerName='" + providerName + '\'' +
+                    ", employeeID='" + employeeID + '\'' +
                     ", role='" + role + '\'' +
                     ", level='" + level + '\'' +
                     ", technologyLevel='" + technologyLevel + '\'' +
-                    ", id='" + id + '\'' +
+                    ", locationType='" + locationType + '\'' +
+                    ", domainId=" + domainId +
+                    ", domainName='" + domainName + '\'' +
                     '}';
         }
     }
 
-    public String getServiceRequestId() {
-        return serviceRequestId;
+
+    public String getRequestID() {
+        return requestID;
     }
 
-    public void setServiceRequestId(String serviceRequestId) {
-        this.serviceRequestId = serviceRequestId;
+    public void setRequestID(String requestID) {
+        this.requestID = requestID;
     }
 
-    public int getAgreementId() {
-        return agreementId;
+    public int getMasterAgreementID() {
+        return masterAgreementID;
     }
 
-    public void setAgreementId(int agreementId) {
-        this.agreementId = agreementId;
+    public void setMasterAgreementID(int masterAgreementID) {
+        this.masterAgreementID = masterAgreementID;
     }
 
-    public String getAgreementName() {
-        return agreementName;
+    public String getMasterAgreementName() {
+        return masterAgreementName;
     }
 
-    public void setAgreementName(String agreementName) {
-        this.agreementName = agreementName;
+    public void setMasterAgreementName(String masterAgreementName) {
+        this.masterAgreementName = masterAgreementName;
     }
 
     public String getTaskDescription() {
@@ -132,6 +158,14 @@ public class ServiceRequest {
         this.taskDescription = taskDescription;
     }
 
+    public String getRequestType() {
+        return requestType;
+    }
+
+    public void setRequestType(String requestType) {
+        this.requestType = requestType;
+    }
+
     public String getProject() {
         return project;
     }
@@ -140,44 +174,20 @@ public class ServiceRequest {
         this.project = project;
     }
 
-    public String getBegin() {
-        return begin;
+    public LocalDate getStartDate() {
+        return startDate;
     }
 
-    public void setBegin(String begin) {
-        this.begin = begin;
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
     }
 
-    public String getEnd() {
-        return end;
+    public LocalDate getEndDate() {
+        return endDate;
     }
 
-    public void setEnd(String end) {
-        this.end = end;
-    }
-
-    public int getAmountOfManDays() {
-        return amountOfManDays;
-    }
-
-    public void setAmountOfManDays(int amountOfManDays) {
-        this.amountOfManDays = amountOfManDays;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
     }
 
     public String getCycleStatus() {
@@ -186,6 +196,14 @@ public class ServiceRequest {
 
     public void setCycleStatus(String cycleStatus) {
         this.cycleStatus = cycleStatus;
+    }
+
+    public String getSelectedDomainName() {
+        return selectedDomainName;
+    }
+
+    public void setSelectedDomainName(String selectedDomainName) {
+        this.selectedDomainName = selectedDomainName;
     }
 
     public int getNumberOfSpecialists() {
@@ -204,76 +222,39 @@ public class ServiceRequest {
         this.numberOfOffers = numberOfOffers;
     }
 
-    public String getConsumer() {
-        return consumer;
+    public boolean isApproved() {
+        return isApproved;
     }
 
-    public void setConsumer(String consumer) {
-        this.consumer = consumer;
+    public void setApproved(boolean approved) {
+        isApproved = approved;
     }
 
-    public String getLocationType() {
-        return locationType;
+    public List<ServiceOffer> getServiceOffers() {
+        return serviceOffers;
     }
 
-    public void setLocationType(String locationType) {
-        this.locationType = locationType;
-    }
-
-    public String getInformationForProviderManager() {
-        return informationForProviderManager;
-    }
-
-    public void setInformationForProviderManager(String informationForProviderManager) {
-        this.informationForProviderManager = informationForProviderManager;
-    }
-
-    public List<SelectedMember> getSelectedMembers() {
-        return selectedMembers;
-    }
-
-    public void setSelectedMembers(List<SelectedMember> selectedMembers) {
-        this.selectedMembers = selectedMembers;
-    }
-
-    public List<String> getNotifications() {
-        return notifications;
-    }
-
-    public void setNotifications(List<String> notifications) {
-        this.notifications = notifications;
-    }
-
-    public List<Employee> getEmployeesDetails() {
-        return employeesDetails;
-    }
-
-    public void setEmployeesDetails(List<Employee> employeesDetails) {
-        this.employeesDetails = employeesDetails;
+    public void setServiceOffers(List<ServiceOffer> serviceOffers) {
+        this.serviceOffers = serviceOffers;
     }
 
     @Override
     public String toString() {
         return "ServiceRequest{" +
-                "serviceRequestId='" + serviceRequestId + '\'' +
-                ", agreementId=" + agreementId +
-                ", agreementName='" + agreementName + '\'' +
+                "requestID='" + requestID + '\'' +
+                ", masterAgreementID=" + masterAgreementID +
+                ", masterAgreementName='" + masterAgreementName + '\'' +
                 ", taskDescription='" + taskDescription + '\'' +
+                ", requestType='" + requestType + '\'' +
                 ", project='" + project + '\'' +
-                ", begin='" + begin + '\'' +
-                ", end='" + end + '\'' +
-                ", amountOfManDays=" + amountOfManDays +
-                ", location='" + location + '\'' +
-                ", type='" + type + '\'' +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
                 ", cycleStatus='" + cycleStatus + '\'' +
+                ", selectedDomainName='" + selectedDomainName + '\'' +
                 ", numberOfSpecialists=" + numberOfSpecialists +
                 ", numberOfOffers=" + numberOfOffers +
-                ", consumer='" + consumer + '\'' +
-                ", locationType='" + locationType + '\'' +
-                ", informationForProviderManager='" + informationForProviderManager + '\'' +
-                ", selectedMembers=" + selectedMembers +
-                ", notifications=" + notifications +
-                ", employeesDetails=" + employeesDetails +
+                ", isApproved=" + isApproved +
+                ", serviceOffers=" + serviceOffers +
                 '}';
     }
 }

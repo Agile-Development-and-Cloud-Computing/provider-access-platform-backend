@@ -26,8 +26,6 @@ public class AppConfig {
             System.out.println("Fetching and inserting agreements...");
             apiService.fetchAndInsertAgreements();
 
-            System.out.println("Fetching and inserting service requests...");
-            apiService.fetchAndInsertServiceRequests();
         };
     }
 

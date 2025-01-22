@@ -138,8 +138,9 @@ public class RequestManagementController {
             if (selectedMembers != null && selectedMembers.isArray()) {
                 for (JsonNode member : selectedMembers) {
                     LinkedHashMap<String, Object> memberMap = new LinkedHashMap<>();
-                    memberMap.put("domainId", member.has("domainId") ? member.get("domainId").asInt() : null);
-                    memberMap.put("domainName", getField(member, "domainName", "selectedDomainName"));
+                    memberMap.put("domainId", member.has("domainId") ? member.get("domainId").asInt() : "NA");
+                    memberMap.put("domainName", member.has("domainName") ? member.get("domainName").asText() :
+                            (member.has("selectedDomainName") ? member.get("selectedDomainName").asText() : "NA"));
                     memberMap.put("role", getField(member, "role", "role"));
                     memberMap.put("level", getField(member, "level", "level"));
                     memberMap.put("technologyLevel", getField(member, "technologyLevel", "technologyLevel"));
@@ -183,6 +184,17 @@ public class RequestManagementController {
             }
         }
         return Collections.emptyList();
+    }
+
+
+    @PostMapping("/submit")
+    public ResponseEntity<String> submitServiceRequest(@RequestBody ServiceRequest request) {
+        try {
+            requestManagementService.processServiceRequest(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Service request submitted successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error submitting request: " + e.getMessage());
+        }
     }
 
 

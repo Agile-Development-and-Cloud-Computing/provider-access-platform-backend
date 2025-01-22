@@ -106,91 +106,11 @@ public class ApiService {
         }
     }
 
-    // Scheduled task for Service Requests
-    @Scheduled(fixedRate = 30000)  // 120000 2 minutes interval
-    public void fetchAndInsertServiceRequests() {
-        logger.info("Starting scheduled task: fetchAndInsertServiceRequests at {}", LocalDateTime.now());
-
-        // Fetch service requests from the external API
-        List<ServiceRequest> serviceRequests = serviceRequestWebClient.get()
-                .uri("/published")
-                .retrieve()
-                .bodyToFlux(ServiceRequest.class)
-                .collectList()
-                .block();
-
-
-        if (serviceRequests != null && !serviceRequests.isEmpty()) {
-            logger.info("Fetched {} service requests from the external API.", serviceRequests.size());
-
-            // Insert each service request into the database
-            serviceRequests.forEach(serviceRequest -> {
-
-                if (!isServiceRequestExists(serviceRequest.getServiceRequestId())) {
-                    logger.debug("Inserting service request: {}", serviceRequest);
-
-                    String beginDateFormatted = formatDateForSQL(serviceRequest.getBegin());
-                    String endDateFormatted = formatDateForSQL(serviceRequest.getEnd());
-                    // Join notifications into a single string
-                    String notifications = String.join("; ", serviceRequest.getNotifications());
-
-                    String serviceRequestSql = "INSERT INTO service_agreement_types (service_request_id, agreement_id, agreement_name, task_description, project, begin_date, end_date, " +
-                            "amount_of_man_days, location, type, cycle_status, number_of_specialists, number_of_offers, consumer, location_type, information_for_provider_manager, notifications) " +
-                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                    jdbcTemplate.update(serviceRequestSql,
-                            serviceRequest.getServiceRequestId(),
-                            serviceRequest.getAgreementId(),
-                            serviceRequest.getAgreementName(),
-                            serviceRequest.getTaskDescription(),
-                            serviceRequest.getProject(),
-                            beginDateFormatted,
-                            endDateFormatted,
-                            serviceRequest.getAmountOfManDays(),
-                            serviceRequest.getLocation(),
-                            serviceRequest.getType(),
-                            serviceRequest.getCycleStatus(),
-                            serviceRequest.getNumberOfSpecialists(),
-                            serviceRequest.getNumberOfOffers(),
-                            serviceRequest.getConsumer(),
-                            serviceRequest.getLocationType(),
-                            serviceRequest.getInformationForProviderManager(),
-                            notifications);
-
-                    serviceRequest.getSelectedMembers().forEach(member -> {
-                        logger.debug("Inserting selected member: {}", member);
-
-                        String memberSql = "INSERT INTO service_request (service_request_id, domain_id, domain_name, role, level, technology_level, member_id) " +
-                                "VALUES (?, ?, ?, ?, ?, ?, ?)";
-                        jdbcTemplate.update(memberSql,
-                                serviceRequest.getServiceRequestId(),
-                                member.getDomainId(),
-                                member.getDomainName(),
-                                member.getRole(),
-                                member.getLevel(),
-                                member.getTechnologyLevel(),
-                                member.getId());
-                    });
-                    logger.info("Service Request with ID {} successfully inserted into the database.", serviceRequest.getServiceRequestId());
-                }
-            });
-        } else {
-            logger.warn("No service requests found in the external API response.");
-        }
-    }
-
     private boolean isAgreementExists(int agreementId) {
         String sql = "SELECT COUNT(*) FROM master_agreement_types WHERE master_agreement_type_id = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, agreementId);
         return count != null && count > 0;
     }
-
-    // Check if the service request already exists
-    private boolean isServiceRequestExists(String serviceRequestId) {
-        String sql = "SELECT COUNT(*) FROM service_agreement_types WHERE service_request_id = ?";
-        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, serviceRequestId);
-        return count != null && count > 0;
-    }
-
 
     private String formatDateForSQL(String date) {
         if (date == null || date.isEmpty()) {
