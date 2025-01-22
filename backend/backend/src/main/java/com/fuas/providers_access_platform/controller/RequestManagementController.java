@@ -60,9 +60,9 @@ public class RequestManagementController {
         }
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<CommonResponse<List<Map<String, Object>>>> getServiceRequests(@PathVariable Long userId) {
-        CommonResponse<List<Map<String, Object>>> response = requestManagementService.getServiceRequestsForUser(userId);
+    @GetMapping("/offers")
+    public ResponseEntity<CommonResponse<List<Map<String, Object>>>> getServiceRequestsOffers() {
+        CommonResponse<List<Map<String, Object>>> response = requestManagementService.getServiceRequestsOffers();
         return ResponseEntity.ok(response);
     }
 
