@@ -85,17 +85,24 @@ public class ProviderManagementController {
 
 
     @PostMapping("/offer-response")
-    public ResponseEntity<Map<String, String>> postMaOfferResponse(@RequestBody Map<String, Object> request) {
-        Long offerId = Long.valueOf(request.get("offerId").toString());
-        String offerCycle = String.valueOf(request.get("cycle").toString());
-        Boolean isAccepted = Boolean.valueOf(request.get("isAccepted").toString());
-
-        providerManagementService.updateOfferResponse(offerId, offerCycle, isAccepted);
-
-        return ResponseEntity.ok(Map.of(
-                "status", "success",
-                "message", "Offer Response updated successfully"
-        ));
+    public ResponseEntity<Map<String, String>> postMaOfferResponse(@RequestBody List<Map<String, Object>> requestList) {
+        try {
+            providerManagementService.updateOfferResponse(requestList);
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "message", "Offer Response updated successfully"
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "failure",
+                    "message", e.getMessage()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                    "status", "failure",
+                    "message", "An unexpected error occurred while updating offer responses"
+            ));
+        }
     }
 
     @PostMapping("/bid")

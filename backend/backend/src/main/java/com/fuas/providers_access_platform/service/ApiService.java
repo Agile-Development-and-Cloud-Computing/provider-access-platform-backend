@@ -3,6 +3,7 @@ package com.fuas.providers_access_platform.service;
 
 import com.fuas.providers_access_platform.dto.MasterAgreementRequest;
 import com.fuas.providers_access_platform.dto.ServiceRequest;
+import com.fuas.providers_access_platform.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,13 +17,14 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ApiService {
 
     private static final Logger logger = LoggerFactory.getLogger(ApiService.class);
     private final WebClient masterAgreementWebClient; // For Master Agreement API
-    private final WebClient serviceRequestWebClient;  // For Service Request API
+    private final WebClient providerWebClient;  // For Service Request API
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -37,8 +39,8 @@ public class ApiService {
         this.masterAgreementWebClient = webClientBuilder
                 .baseUrl("https://agiledev-contractandprovidermana-production.up.railway.app/master-agreements")
                 .build();
-        this.serviceRequestWebClient = webClientBuilder
-                .baseUrl("https://service-management-backend-production.up.railway.app/api/service-requests")
+        this.providerWebClient = webClientBuilder
+                .baseUrl("https://agiledev-contractandprovidermana-production.up.railway.app/providers")
                 .build();
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -126,5 +128,58 @@ public class ApiService {
             return null; // Or a default value
         }
     }
+
+    /*
+    // Scheduled task to fetch provider details every 15 minutes (900000 ms)
+    @Scheduled(fixedRate = 900000)
+    public void fetchAndInsertProviders() {
+        logger.info("Starting to fetch providers from external API...");
+
+        try {
+            List<User> providers = providerWebClient.get()
+                    .uri("/details")
+                    .retrieve()
+                    .bodyToFlux(User.class)
+                    .collectList()
+                    .block();
+
+            if (providers != null && !providers.isEmpty()) {
+                logger.info("Fetched {} providers from API.", providers.size());
+
+                for (User provider : providers) {
+                    if (!isProviderExists(provider.getProviderId())) {
+                        // Insert provider directly inside this method
+                        String sql = "INSERT INTO users (username, password, user_type, email, provider_id, provider_name, cycle_status) " +
+                                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+                        jdbcTemplate.update(sql,
+                                provider.getUsername(),
+                                provider.getPassword(),
+                                provider.getUserType(),
+                                provider.getEmail(),
+                                provider.getProviderId(),
+                                provider.getProviderName(),  // Assuming both fields hold the same value
+                                "ACTIVE");
+
+                        logger.info("Successfully inserted provider '{}' with ID {}.", provider.getUsername(), provider.getProviderId());
+                    } else {
+                        logger.warn("Provider with ID {} already exists. Skipping...", provider.getProviderId());
+                    }
+                }
+            } else {
+                logger.warn("No providers found in the API response.");
+            }
+        } catch (Exception e) {
+            logger.error("Error while fetching and inserting providers: {}", e.getMessage());
+        }
+    }
+
+    private boolean isProviderExists(Integer providerId) {
+        String sql = "SELECT COUNT(*) FROM users WHERE provider_id = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, providerId);
+        return count != null && count > 0;
+    }
+    */
+
 
 }

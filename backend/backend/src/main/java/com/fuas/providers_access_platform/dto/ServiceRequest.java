@@ -2,14 +2,14 @@ package com.fuas.providers_access_platform.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fuas.providers_access_platform.model.Employee;
 
-import java.lang.reflect.Member;
 import java.time.LocalDate;
 import java.util.List;
 
 public class ServiceRequest {
 
+    @JsonProperty("offerId")
+    private Long id;
     private String requestID;
     private int masterAgreementID;
     private String masterAgreementName;
@@ -22,9 +22,11 @@ public class ServiceRequest {
     private String selectedDomainName;
     private int numberOfSpecialists;
     private int numberOfOffers;
-    private boolean isApproved;
+    private String isApproved;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String createdBy;
+
+    private String comments;
     private List<ServiceOffer> serviceOffers;
 
     public static class ServiceOffer {
@@ -138,6 +140,13 @@ public class ServiceRequest {
         }
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getRequestID() {
         return requestID;
@@ -235,12 +244,12 @@ public class ServiceRequest {
         this.numberOfOffers = numberOfOffers;
     }
 
-    public boolean isApproved() {
+    public String getIsApproved() {
         return isApproved;
     }
 
-    public void setApproved(boolean approved) {
-        isApproved = approved;
+    public void setIsApproved(String isApproved) {
+        this.isApproved = isApproved;
     }
 
     public List<ServiceOffer> getServiceOffers() {
@@ -259,10 +268,19 @@ public class ServiceRequest {
         this.createdBy = createdBy;
     }
 
+    public String getComments() {
+        return comments;
+    }
+
+    public void setComments(String comments) {
+        this.comments = comments;
+    }
+
     @Override
     public String toString() {
         return "ServiceRequest{" +
-                "requestID='" + requestID + '\'' +
+                "id=" + id +
+                ", requestID='" + requestID + '\'' +
                 ", masterAgreementID=" + masterAgreementID +
                 ", masterAgreementName='" + masterAgreementName + '\'' +
                 ", taskDescription='" + taskDescription + '\'' +
@@ -274,8 +292,9 @@ public class ServiceRequest {
                 ", selectedDomainName='" + selectedDomainName + '\'' +
                 ", numberOfSpecialists=" + numberOfSpecialists +
                 ", numberOfOffers=" + numberOfOffers +
-                ", isApproved=" + isApproved +
+                ", isApproved='" + isApproved + '\'' +
                 ", createdBy='" + createdBy + '\'' +
+                ", comments='" + comments + '\'' +
                 ", serviceOffers=" + serviceOffers +
                 '}';
     }

@@ -207,6 +207,38 @@ public class RequestManagementService {
         );
     }
 
+    public String updateOfferStatus(Long offerId, String requestId, String status, String comments) {
+        // Validate status input
+
+        System.out.println("Received request to update offer status");
+        System.out.println("Offer ID: " + offerId);
+        System.out.println("Request ID: " + requestId);
+        System.out.println("Status: " + status);
+        System.out.println("Comments: " + comments);
+        if (!"Accepted".equalsIgnoreCase(status) && !"Declined".equalsIgnoreCase(status)) {
+            return "Invalid status value. Use 'Accepted' or 'Declined'.";
+        }
+
+        // SQL query to update the offer status and comments
+        String sql = "UPDATE service_offers SET is_approved = ?, comments = ? " +
+                "WHERE offer_id = ? AND request_id = ?";
+
+        try {
+            // Execute the update
+            int rowsAffected = jdbcTemplate.update(sql, status, comments,offerId, requestId);
+
+            // Check if the update was successful
+            if (rowsAffected > 0) {
+                return "Offer status updated successfully";
+            } else {
+                return "No rows updated. Please check if the offer_id and request_id are correct.";
+            }
+        } catch (Exception e) {
+            // Log and return the error message
+            return "Error updating offer status: " + e.getMessage();
+        }
+    }
+
 }
 
 

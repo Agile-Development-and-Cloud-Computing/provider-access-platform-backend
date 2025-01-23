@@ -199,5 +199,37 @@ public class RequestManagementController {
         }
     }
 
+    @PostMapping("/update-status")
+    public ResponseEntity<Map<String, Object>> updateOfferStatus(@RequestBody ServiceRequest offerUpdateRequest) {
+        // Call the service to update the status
+
+        System.out.println("Received request to update offer status");
+        System.out.println("Offer ID: " + offerUpdateRequest.getId());
+        System.out.println("Request ID: " + offerUpdateRequest.getRequestID());
+        System.out.println("Status: " + offerUpdateRequest.getIsApproved());
+        System.out.println("Comments: " + offerUpdateRequest.getComments());
+
+        String responseMessage = requestManagementService.updateOfferStatus(
+                offerUpdateRequest.getId(),
+                offerUpdateRequest.getRequestID(),
+                offerUpdateRequest.getIsApproved(),
+                offerUpdateRequest.getComments()
+        );
+
+        // If the message contains 'successfully', return success status
+        if (responseMessage.contains("successfully")) {
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "message", responseMessage
+            ));
+        } else {
+            // Return failure status with the message
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "failure",
+                    "message", responseMessage
+            ));
+        }
+    }
+
 
 }
