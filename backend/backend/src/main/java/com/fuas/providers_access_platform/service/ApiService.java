@@ -2,11 +2,10 @@ package com.fuas.providers_access_platform.service;
 
 
 import com.fuas.providers_access_platform.dto.MasterAgreementRequest;
-import com.fuas.providers_access_platform.dto.ServiceRequest;
-import com.fuas.providers_access_platform.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -129,41 +128,43 @@ public class ApiService {
         }
     }
 
-    /*
+
     // Scheduled task to fetch provider details every 15 minutes (900000 ms)
-    @Scheduled(fixedRate = 900000)
+    @Scheduled(fixedRate = 30000)
     public void fetchAndInsertProviders() {
         logger.info("Starting to fetch providers from external API...");
 
         try {
-            List<User> providers = providerWebClient.get()
+            // Fetch the providers from the API as List<Map<String, Object>> directly
+            List<Map<String, Object>> providers = providerWebClient.get()
                     .uri("/details")
                     .retrieve()
-                    .bodyToFlux(User.class)
-                    .collectList()
-                    .block();
+                    .bodyToMono(new ParameterizedTypeReference<List<Map<String, Object>>>() {})
+                    .block(); // Use block to wait for the result
 
             if (providers != null && !providers.isEmpty()) {
                 logger.info("Fetched {} providers from API.", providers.size());
 
-                for (User provider : providers) {
-                    if (!isProviderExists(provider.getProviderId())) {
-                        // Insert provider directly inside this method
-                        String sql = "INSERT INTO users (username, password, user_type, email, provider_id, provider_name, cycle_status) " +
-                                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                for (Map<String, Object> provider : providers) {
+                    // Safely extract providerId from the map and cast
+                    Integer providerId = provider.get("providerId") != null ? ((Number) provider.get("providerId")).intValue() : null;
+                    if (providerId != null && !isProviderExists(providerId)) {
+                        // Insert provider directly inside this method using Map values
+                        String sql = "INSERT INTO user (username, password, user_type, email, provider_id, provider_name, cycle_status) " +
+                                "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
                         jdbcTemplate.update(sql,
-                                provider.getUsername(),
-                                provider.getPassword(),
-                                provider.getUserType(),
-                                provider.getEmail(),
-                                provider.getProviderId(),
-                                provider.getProviderName(),  // Assuming both fields hold the same value
+                                provider.get("username"),
+                                provider.get("password"),
+                                provider.get("role"),  // "userType" key from the Map
+                                provider.get("emailId"),
+                                providerId,
+                                provider.get("name"),  // "providerName" key from the Map
                                 "ACTIVE");
 
-                        logger.info("Successfully inserted provider '{}' with ID {}.", provider.getUsername(), provider.getProviderId());
+                        logger.info("Successfully inserted provider with ID {}.", providerId);
                     } else {
-                        logger.warn("Provider with ID {} already exists. Skipping...", provider.getProviderId());
+                        logger.warn("Provider with ID {} already exists or providerId is null. Skipping...", providerId);
                     }
                 }
             } else {
@@ -175,11 +176,11 @@ public class ApiService {
     }
 
     private boolean isProviderExists(Integer providerId) {
-        String sql = "SELECT COUNT(*) FROM users WHERE provider_id = ?";
+        String sql = "SELECT COUNT(*) FROM user WHERE provider_id = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, providerId);
         return count != null && count > 0;
     }
-    */
+
 
 
 }

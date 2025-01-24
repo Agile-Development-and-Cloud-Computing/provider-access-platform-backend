@@ -26,8 +26,8 @@ public class AppConfig {
             System.out.println("Fetching and inserting agreements...");
             apiService.fetchAndInsertAgreements();
 
-            //System.out.println("Fetching and inserting provider details...");
-            //apiService.fetchAndInsertProviders();
+            System.out.println("Fetching and inserting provider details...");
+            apiService.fetchAndInsertProviders();
         };
     }
 
