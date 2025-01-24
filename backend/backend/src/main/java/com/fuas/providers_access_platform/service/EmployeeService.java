@@ -6,8 +6,12 @@ import com.fuas.providers_access_platform.model.Employee;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Service;
 
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,34 +33,43 @@ public class EmployeeService {
             employee.put("employeeName", rs.getString("employee_name"));
             employee.put("role", rs.getString("role"));
             employee.put("level", rs.getString("level"));
-            employee.put("technology_level", rs.getString("technology_level"));
+            employee.put("technologyLevel", rs.getString("technology_level"));
             return employee;
         });
     }
 
     // Method to add a new employee
     public CommonResponse addEmployee(Employee employee) {
-        String sql = "INSERT INTO employees (employee_name, role, level, technology_level, provider_id) VALUES (?, ?, ?, ?, ?)";
-
+        String sql = "INSERT INTO employee (employee_name, role, level, technology_level, provider_id) VALUES (?, ?, ?, ?, ?)";
         try {
-            jdbcTemplate.update(sql,
-                    employee.getEmployeeName(),
-                    employee.getRole(),
-                    employee.getLevel(),
-                    employee.getTechnologyLevel(),
-                    employee.getProviderId()
-            );
-            return new CommonResponse(true, "Employee successfully added",employee);
+            // Insert employee data and get the generated employee ID
+            KeyHolder keyHolder = new GeneratedKeyHolder();
+            jdbcTemplate.update(connection -> {
+                PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+                ps.setString(1, employee.getEmployeeName());
+                ps.setString(2, employee.getRole());
+                ps.setString(3, employee.getLevel());
+                ps.setString(4, employee.getTechnologyLevel());
+                ps.setLong(5, employee.getProviderId());
+                return ps;
+            }, keyHolder);
+
+            // Retrieve the generated employee ID
+            Integer employeeId = keyHolder.getKey().intValue();
+            employee.setEmployeeId(employeeId);  // Set the generated employee ID to the employee object
+
+            // Return the CommonResponse with the employee object (excluding resumeUrl)
+            return new CommonResponse(true, "Employee successfully added", employee);
         } catch (DataIntegrityViolationException e) {
-            return new CommonResponse(false, "Provider ID does not exist or other database error: ",null);
+            return new CommonResponse(false, "Provider ID does not exist or other database error", null);
         } catch (Exception e) {
             return new CommonResponse(false, "Error adding employee: " + e.getMessage(), null);
         }
     }
 
     // Method to update an existing employee's details
-    public CommonResponse updateEmployee(Integer employeeId, Employee employee) {
-        String sql = "UPDATE employees SET employee_name = ?, role = ?, level = ?, technology_level = ? WHERE employee_id = ?";
+    public CommonResponse updateEmployee(Integer employeeId, Integer providerId ,Employee employee) {
+        String sql = "UPDATE employee SET employee_name = ?, role = ?, level = ?, technology_level = ? WHERE employee_id = ?";
 
         try {
             jdbcTemplate.update(sql,
@@ -66,7 +79,10 @@ public class EmployeeService {
                     employee.getTechnologyLevel(),
                     employeeId
             );
-            return new CommonResponse(true, "Employee successfully updated", null);
+
+            employee.setEmployeeId(employeeId);
+            employee.setProviderId(providerId);
+            return new CommonResponse(true, "Employee successfully updated", employee);
         } catch (Exception e) {
             return new CommonResponse(false, "Error updating employee: " + e.getMessage(), null);
         }
@@ -74,7 +90,7 @@ public class EmployeeService {
 
     // Method to remove an employee from the system
     public CommonResponse removeEmployee(Integer employeeId) {
-        String sql = "DELETE FROM employees WHERE employee_id = ?";
+        String sql = "DELETE FROM employee WHERE employee_id = ?";
 
         try {
             jdbcTemplate.update(sql, employeeId);

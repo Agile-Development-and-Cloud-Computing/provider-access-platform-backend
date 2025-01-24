@@ -8,7 +8,6 @@ public class Employee {
     private String level;
     private String technologyLevel;  // Could be a comma-separated list of technologies
     private Integer providerId;
-    private String resumeUrl;
 
 
     public Employee(Integer employeeId, String employeeName) {
@@ -67,14 +66,6 @@ public class Employee {
         this.providerId = providerId;
     }
 
-    public String getResumeUrl() {
-        return resumeUrl;
-    }
-
-    public void setResumeUrl(String resumeUrl) {
-        this.resumeUrl = resumeUrl;
-    }
-
     @Override
     public String toString() {
         return "Employee{" +
@@ -84,7 +75,6 @@ public class Employee {
                 ", level='" + level + '\'' +
                 ", technologyLevel='" + technologyLevel + '\'' +
                 ", providerId=" + providerId +
-                ", resumeUrl='" + resumeUrl + '\'' +
                 '}';
     }
 }

@@ -6,13 +6,15 @@ import com.fuas.providers_access_platform.model.Employee;
 import com.fuas.providers_access_platform.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+
 
 import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/employees")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true" ,allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
 public class EmployeeController {
 
     @Autowired
@@ -33,9 +35,9 @@ public class EmployeeController {
     }
 
     // API to update an employee's details
-    @PutMapping("/update/{employeeId}")
-    public CommonResponse updateEmployee(@PathVariable("employeeId") Integer employeeId, @RequestBody Employee employee) {
-        CommonResponse response = employeeService.updateEmployee(employeeId, employee);
+    @PutMapping("/update/{employeeId}/{providerId}")
+    public CommonResponse updateEmployee(@PathVariable("employeeId") Integer employeeId, @PathVariable("providerId") Integer providerId ,@RequestBody Employee employee) {
+        CommonResponse response = employeeService.updateEmployee(employeeId, providerId,employee);
         return response;
     }
 
