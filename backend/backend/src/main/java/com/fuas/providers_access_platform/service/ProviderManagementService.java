@@ -61,46 +61,56 @@ public class ProviderManagementService {
     }
 
 
-    public List<Map<String,Object>> getAllOffersGrouped() {
+    public List<Map<String, Object>> getAllOffersGrouped() {
         // Fetch all role offers from the database
         List<RoleOffer> roleOffers = roleOfferRepository.findAll();
 
-        System.out.println("Rows"+roleOffers.toString());
-        // Group by roleName, masterAgreementTypeName, and domainId
+        System.out.println("Rows" + roleOffers.toString());
+
+        // Grouping by experienceLevel, roleName, masterAgreementTypeName, and domainId
         Map<String, List<RoleOffer>> groupedOffers = roleOffers.stream().collect(Collectors.groupingBy(
-                offer -> offer.getRoleName() + "|" + offer.getMasterAgreementTypeName() + "|"
+                offer -> offer.getExperienceLevel() + "|" +
+                        offer.getRoleName() + "|" +
+                        offer.getMasterAgreementTypeName()
         ));
 
-        System.out.println("Rows"+ groupedOffers.toString());
+        System.out.println("Rows" + groupedOffers.toString());
+
         // Transform grouped data into List<Map<String, Object>>
         return groupedOffers.values().stream().map(offers -> {
             RoleOffer firstOffer = offers.get(0);
 
             // Create a map for the main response object
             Map<String, Object> response = new HashMap<>();
-            response.put("roleName", firstOffer.getRoleName());
             response.put("experienceLevel", firstOffer.getExperienceLevel());
-            response.put("technologiesCatalog", firstOffer.getTechnologiesCatalog());
-            response.put("domainName", firstOffer.getDomainName());
             response.put("masterAgreementTypeId", firstOffer.getMasterAgreementTypeId());
+            response.put("domainName", firstOffer.getDomainName());
+            response.put("roleName", firstOffer.getRoleName());
+            response.put("technologiesCatalog", firstOffer.getTechnologiesCatalog());
             response.put("masterAgreementTypeName", firstOffer.getMasterAgreementTypeName());
 
-            // Map providers as a list of maps
-            List<Map<String, Object>> providers = offers.stream().map(offer -> {
-                Map<String, Object> provider = new HashMap<>();
-                provider.put("offerId", offer.getId());
-                provider.put("providerName", offer.getProvider());
-                provider.put("quotePrice", offer.getQuotePrice());
-                provider.put("bidPrice", offer.getBidPrice());
-                provider.put("roleId",offer.getRoleId());
-                provider.put("providerId",offer.getProviderId());
-                return provider;
-            }).collect(Collectors.toList());
+            // Grouping providers by quotePrice to separate data by unique price levels
+            Map<Double, List<RoleOffer>> groupedByPrice = offers.stream()
+                    .collect(Collectors.groupingBy(RoleOffer::getQuotePrice));
+
+            List<Map<String, Object>> providers = groupedByPrice.values().stream().flatMap(group ->
+                    group.stream().map(offer -> {
+                        Map<String, Object> provider = new HashMap<>();
+                        provider.put("offerId", offer.getId());
+                        provider.put("providerName", offer.getProvider());
+                        provider.put("quotePrice", offer.getQuotePrice());
+                        provider.put("bidPrice", offer.getBidPrice());
+                        provider.put("roleId", offer.getRoleId());
+                        provider.put("providerId", offer.getProviderId());
+                        return provider;
+                    })
+            ).collect(Collectors.toList());
 
             response.put("providers", providers);
             return response;
         }).collect(Collectors.toList());
     }
+
 
     public void updateOfferResponse(List<Map<String, Object>> requestList) {
         for (Map<String, Object> request : requestList) {
