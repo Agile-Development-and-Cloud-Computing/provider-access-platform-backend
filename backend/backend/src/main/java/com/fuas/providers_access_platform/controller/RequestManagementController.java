@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/service-request")
@@ -72,10 +73,12 @@ public class RequestManagementController {
         Logger logger = LoggerFactory.getLogger(getClass());
         try {
             RestTemplate restTemplate = new RestTemplate();
-            String cycleStatusSql = "SELECT cycle_status FROM user WHERE provider_id = ?";
-            String cycleStatus = jdbcTemplate.queryForObject(cycleStatusSql, new Object[]{providerId}, String.class);
 
-            logger.info("Fetching service requests for providerId: {} with cycleStatus: {}", providerId, cycleStatus);
+            // Fetching all cycles associated with provider
+            String cycleStatusSql = "SELECT offer_cycle FROM role_offer WHERE provider_id = ?";
+            List<String> cycleStatuses = jdbcTemplate.queryForList(cycleStatusSql, new Object[]{providerId}, String.class);
+
+            logger.info("Fetching service requests for providerId: {} with cycleStatuses: {}", providerId, cycleStatuses);
 
             ResponseEntity<String> response1 = restTemplate.getForEntity(API_URL_1, String.class);
             ResponseEntity<String> response2 = restTemplate.getForEntity(API_URL_2, String.class);
@@ -88,12 +91,12 @@ public class RequestManagementController {
 
             logger.info("Processing first API response");
             if (root1.isArray()) {
-                processServiceRequests(root1, cycleStatus, formattedRequests);
+                processServiceRequests(root1, cycleStatuses, formattedRequests);
             }
 
             logger.info("Processing second API response");
             if (root2.isArray()) {
-                processServiceRequests(root2, cycleStatus, formattedRequests);
+                processServiceRequests(root2, cycleStatuses, formattedRequests);
             }
 
             logger.info("Total requests processed: {}", formattedRequests.size());
@@ -106,12 +109,17 @@ public class RequestManagementController {
     }
 
 
-    private static void processServiceRequests(JsonNode serviceRequests, String cycleStatus, List<LinkedHashMap<String, Object>> formattedRequests) {
+    private static void processServiceRequests(JsonNode serviceRequests, List<String> cycleStatuses, List<LinkedHashMap<String, Object>> formattedRequests) {
         for (JsonNode request : serviceRequests) {
             LinkedHashMap<String, Object> requestMap = new LinkedHashMap<>();
 
             String requestCycleStatus = getField(request, "cycleStatus", "cycle").toString();
-            if (!requestCycleStatus.equals(cycleStatus)) {
+
+            List<String> lowerCaseCycleStatuses = cycleStatuses.stream()
+                    .map(String::toLowerCase)
+                    .collect(Collectors.toList());
+
+            if (!lowerCaseCycleStatuses.contains(requestCycleStatus)) {
                 continue;
             }
 
