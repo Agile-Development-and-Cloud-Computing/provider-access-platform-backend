@@ -14,8 +14,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableWebSecurity
@@ -33,7 +31,7 @@ public class SecurityConfig {
         // Disable CSRF for all requests (as it is unnecessary for stateless API)
         http.csrf(csrf -> csrf.disable()) // `csrf().disable()` still works here
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/login", "/api/service-request/published/{providerId}", "/api/provider/role-offers","/api/provider/master-agreements","api/provider/bid","/api/employees/{providerId}","/api/service-request/submit","/api/service-request/offers", "/api/employees/update/${employeeId}/${providerId}","/api/employees/add","/api/provider/offer-response","/api/service-request/update-status").permitAll() // Whitelist these URLs
+                        .requestMatchers("/api/login", "/api/service-request/published/{providerId}", "/api/provider/role-offers","api/provider/bid","/api/employees/{providerId}","/api/service-request/submit","/api/service-request/offers", "/api/employees/update/${employeeId}/${providerId}","/api/employees/add","/api/provider/offer-response","/api/service-request/update-status","/api/service-request/published").permitAll() // Whitelist these URLs
                         .anyRequest().authenticated()  // Require authentication for other requests
                 )
                 .sessionManagement(session -> session

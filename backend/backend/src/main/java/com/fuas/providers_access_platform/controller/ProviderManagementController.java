@@ -5,8 +5,12 @@ import com.fuas.providers_access_platform.dto.CommonResponse;
 import com.fuas.providers_access_platform.dto.MasterAgreementRequest;
 import com.fuas.providers_access_platform.dto.ProviderRequest;
 import com.fuas.providers_access_platform.model.RoleOffer;
+import com.fuas.providers_access_platform.service.JwtService;
 import com.fuas.providers_access_platform.service.MasterAgreementService;
 import com.fuas.providers_access_platform.service.ProviderManagementService;
+import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin
 @RequestMapping("/api/provider")
 public class ProviderManagementController {
     @Autowired
@@ -27,6 +31,12 @@ public class ProviderManagementController {
 
     @Autowired
     private MasterAgreementService masterAgreementService;
+
+    @Autowired
+    private JwtService jwtService;
+
+    private static final Logger logger = LoggerFactory.getLogger(ProviderManagementController.class);
+
 
     @PutMapping("/edit-credentials")
     public ResponseEntity<Map<String, Object>> editProviderCredentials(@RequestBody Map<String, String> inputPayload) {
@@ -55,7 +65,23 @@ public class ProviderManagementController {
 
 
     @GetMapping("/master-agreements")
-    public CommonResponse getMasterAgreementsWithRoleOffer() {
+    public CommonResponse getMasterAgreementsWithRoleOffer(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+
+            if (jwtService.validateToken(token)) {
+                String username = jwtService.extractUsername(token);
+                logger.info("Token is valid for user: {}", username);
+            } else {
+                logger.error("Invalid or expired token.");
+                return new CommonResponse(false, "Unauthorized", null);
+            }
+        } else {
+            return new CommonResponse(false, "Missing token", null);
+        }
+
         List<Map<String, Object>> masterAgreements = masterAgreementService.getMasterAgreementsWithRoleOffer();
         return new CommonResponse(true, "Offers fetched successfully", masterAgreements);
     }

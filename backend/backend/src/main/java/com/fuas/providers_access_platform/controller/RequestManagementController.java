@@ -113,11 +113,15 @@ public class RequestManagementController {
         for (JsonNode request : serviceRequests) {
             LinkedHashMap<String, Object> requestMap = new LinkedHashMap<>();
 
-            String requestCycleStatus = getField(request, "cycleStatus", "cycle").toString();
+            String requestCycleStatus = getField(request, "cycleStatus", "cycle") != null
+                    ? getField(request, "cycleStatus", "cycle").toString().trim().toLowerCase()
+                    : "";
 
             List<String> lowerCaseCycleStatuses = cycleStatuses.stream()
                     .map(String::toLowerCase)
+                    .map(String::trim)
                     .collect(Collectors.toList());
+
 
             if (!lowerCaseCycleStatuses.contains(requestCycleStatus)) {
                 continue;

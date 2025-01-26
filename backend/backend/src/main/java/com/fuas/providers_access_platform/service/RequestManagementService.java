@@ -67,8 +67,8 @@ public class RequestManagementService {
     }
 
 
-    public CommonResponse<List<Map<String,Object>>> getServiceRequestsOffers() {
-        String sql = "SELECT " +
+    public CommonResponse<List<Map<String, Object>>> getServiceRequestsOffers() {
+        String sql = "SELECT DISTINCT " +
                 "sr.id AS service_request_id, " +
                 "sr.request_id, " +
                 "sr.master_agreement_id, " +
@@ -110,11 +110,13 @@ public class RequestManagementService {
             return new CommonResponse<>(false, "No service requests found.", null);
         }
 
+        // Use a map to group service requests by request_id
         Map<String, Map<String, Object>> serviceRequestsMap = new HashMap<>();
 
         for (Map<String, Object> row : rows) {
             String requestId = (String) row.get("request_id");
 
+            // Get or create service request map
             Map<String, Object> serviceRequest = serviceRequestsMap.get(requestId);
             if (serviceRequest == null) {
                 serviceRequest = new LinkedHashMap<>();
@@ -132,10 +134,11 @@ public class RequestManagementService {
                 serviceRequest.put("numberOfOffers", row.get("number_of_offers"));
                 serviceRequest.put("isApproved", row.get("is_approved"));
                 serviceRequest.put("createdBy", row.get("created_by"));
-                serviceRequest.put("serviceOffers", new ArrayList<>());
+                serviceRequest.put("serviceOffers", new ArrayList<Map<String, Object>>());
                 serviceRequestsMap.put(requestId, serviceRequest);
             }
 
+            // Prepare service offer map
             Map<String, Object> serviceOffer = new LinkedHashMap<>();
             serviceOffer.put("offerId", row.get("offer_id"));
             serviceOffer.put("providerName", row.get("provider_name"));
@@ -146,16 +149,24 @@ public class RequestManagementService {
             serviceOffer.put("technologyLevel", row.get("technology_level"));
             serviceOffer.put("domainId", row.get("domain_id"));
             serviceOffer.put("domainName", row.get("domain_name"));
-            serviceOffer.put("userId",row.get("user_id"));
+            serviceOffer.put("userId", row.get("user_id"));
             serviceOffer.put("price", row.get("bid_price"));
 
+            // Add service offer only if it doesn't already exist
             List<Map<String, Object>> serviceOffers = (List<Map<String, Object>>) serviceRequest.get("serviceOffers");
-            serviceOffers.add(serviceOffer);
+            boolean exists = serviceOffers.stream().anyMatch(offer -> offer.get("offerId").equals(row.get("offer_id")));
+
+            if (!exists) {
+                serviceOffers.add(serviceOffer);
+            }
         }
 
+        // Convert map to list of service requests
         List<Map<String, Object>> serviceRequestsList = new ArrayList<>(serviceRequestsMap.values());
+
         return new CommonResponse<>(true, "Service requests fetched successfully.", serviceRequestsList);
     }
+
 
 
     @Transactional
