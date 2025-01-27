@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.sql.Date;
 
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @Service
 public class RequestManagementService {

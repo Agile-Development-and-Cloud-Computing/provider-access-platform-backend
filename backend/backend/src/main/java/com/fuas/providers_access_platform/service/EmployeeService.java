@@ -3,6 +3,8 @@ package com.fuas.providers_access_platform.service;
 
 import com.fuas.providers_access_platform.dto.CommonResponse;
 import com.fuas.providers_access_platform.model.Employee;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -19,30 +21,40 @@ import java.util.Map;
 @Service
 public class EmployeeService {
 
+    private static final Logger logger = LoggerFactory.getLogger(EmployeeService.class);
+
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
     // Method to get the list of employees for a specific provider
     public List<Map<String, Object>> getEmployees(Integer providerId) {
+        logger.info("Fetching employees for providerId: {}", providerId);
         String sql = "SELECT employee_id, employee_name, role, level, technology_level " +
                 "FROM employee WHERE provider_id = ?";
+        try {
+            List<Map<String, Object>> employees = jdbcTemplate.query(sql, new Object[]{providerId}, (rs, rowNum) -> {
+                Map<String, Object> employee = new LinkedHashMap<>();
+                employee.put("employeeId", rs.getInt("employee_id"));
+                employee.put("employeeName", rs.getString("employee_name"));
+                employee.put("role", rs.getString("role"));
+                employee.put("level", rs.getString("level"));
+                employee.put("technologyLevel", rs.getString("technology_level"));
+                return employee;
+            });
 
-        return jdbcTemplate.query(sql, new Object[]{providerId}, (rs, rowNum) -> {
-            Map<String, Object> employee = new LinkedHashMap<>();
-            employee.put("employeeId", rs.getInt("employee_id"));
-            employee.put("employeeName", rs.getString("employee_name"));
-            employee.put("role", rs.getString("role"));
-            employee.put("level", rs.getString("level"));
-            employee.put("technologyLevel", rs.getString("technology_level"));
-            return employee;
-        });
+            logger.info("Successfully retrieved {} employees for providerId: {}", employees.size(), providerId);
+            return employees;
+        } catch (Exception e) {
+            logger.error("Error fetching employees for providerId {}: {}", providerId, e.getMessage(), e);
+            throw e;
+        }
     }
 
     // Method to add a new employee
     public CommonResponse addEmployee(Employee employee) {
+        logger.info("Adding new employee: {}", employee);
         String sql = "INSERT INTO employee (employee_name, role, level, technology_level, provider_id) VALUES (?, ?, ?, ?, ?)";
         try {
-            // Insert employee data and get the generated employee ID
             KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(connection -> {
                 PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
@@ -54,25 +66,26 @@ public class EmployeeService {
                 return ps;
             }, keyHolder);
 
-            // Retrieve the generated employee ID
             Integer employeeId = keyHolder.getKey().intValue();
-            employee.setEmployeeId(employeeId);  // Set the generated employee ID to the employee object
+            employee.setEmployeeId(employeeId);
 
-            // Return the CommonResponse with the employee object (excluding resumeUrl)
+            logger.info("Employee added successfully with ID: {}", employeeId);
             return new CommonResponse(true, "Employee successfully added", employee);
         } catch (DataIntegrityViolationException e) {
+            logger.warn("Provider ID does not exist for employee: {}", employee, e);
             return new CommonResponse(false, "Provider ID does not exist or other database error", null);
         } catch (Exception e) {
+            logger.error("Error adding employee: {}", employee, e);
             return new CommonResponse(false, "Error adding employee: " + e.getMessage(), null);
         }
     }
 
-    // Method to update an existing employee's details
-    public CommonResponse updateEmployee(Integer employeeId, Integer providerId ,Employee employee) {
+    public CommonResponse updateEmployee(Integer employeeId, Integer providerId, Employee employee) {
+        logger.info("Updating employee with ID: {} for providerId: {}", employeeId, providerId);
         String sql = "UPDATE employee SET employee_name = ?, role = ?, level = ?, technology_level = ? WHERE employee_id = ?";
 
         try {
-            jdbcTemplate.update(sql,
+            int rowsUpdated = jdbcTemplate.update(sql,
                     employee.getEmployeeName(),
                     employee.getRole(),
                     employee.getLevel(),
@@ -80,80 +93,38 @@ public class EmployeeService {
                     employeeId
             );
 
+            if (rowsUpdated == 0) {
+                logger.warn("No records updated for employee ID: {}", employeeId);
+                return new CommonResponse(false, "Employee not found or no update required", null);
+            }
+
             employee.setEmployeeId(employeeId);
             employee.setProviderId(providerId);
+            logger.info("Employee with ID: {} successfully updated", employeeId);
             return new CommonResponse(true, "Employee successfully updated", employee);
         } catch (Exception e) {
+            logger.error("Error updating employee ID: {} - {}", employeeId, e.getMessage(), e);
             return new CommonResponse(false, "Error updating employee: " + e.getMessage(), null);
         }
     }
 
     // Method to remove an employee from the system
     public CommonResponse removeEmployee(Integer employeeId) {
+        logger.info("Removing employee with ID: {}", employeeId);
         String sql = "DELETE FROM employee WHERE employee_id = ?";
-
         try {
-            jdbcTemplate.update(sql, employeeId);
+            int rowsDeleted = jdbcTemplate.update(sql, employeeId);
+            if (rowsDeleted == 0) {
+                logger.warn("No employee found with ID: {}", employeeId);
+                return new CommonResponse(false, "Employee not found", null);
+            }
+            logger.info("Employee with ID: {} successfully removed", employeeId);
             return new CommonResponse(true, "Employee successfully removed", null);
         } catch (Exception e) {
+            logger.error("Error removing employee ID: {} - {}", employeeId, e.getMessage(), e);
             return new CommonResponse(false, "Error removing employee: " + e.getMessage(), null);
         }
-
     }
 
-/*
-    public CommonResponse uploadProfile(Employee employeeRequest) {
-        // Validate the service request and employee existence
-        String checkQueryServiceRequest = "SELECT COUNT(*) FROM service_requests WHERE service_id = ?";
-        Integer serviceRequestCount = jdbcTemplate.queryForObject(checkQueryServiceRequest, Integer.class, employeeRequest.getServiceId());
 
-        if (serviceRequestCount == null || serviceRequestCount == 0) {
-            return new CommonResponse (false, "Invalid service request ID", null);
-        }
-
-        String checkQueryEmployee = "SELECT COUNT(*) FROM employees WHERE employee_id = ?";
-        Integer employeeCount = jdbcTemplate.queryForObject(checkQueryEmployee, Integer.class, employeeRequest.getEmployeeId());
-
-        if (employeeCount == null || employeeCount == 0) {
-            return new CommonResponse (false, "Invalid employee ID", null);
-        }
-
-        // Insert the uploaded profile
-        String insertQuery = "INSERT INTO employee_profiles (service_request_id, employee_id, resume_url) VALUES (?, ?, ?)";
-        jdbcTemplate.update(insertQuery, employeeRequest.getServiceId(), employeeRequest.getEmployeeId(), employeeRequest.getResumeUrl());
-
-        return new CommonResponse (true, "Profile uploaded successfully", null);
-    }
-    */
-
-    public CommonResponse <List <Map<String,Object>>> getSuggestions(String knowledgeKeyword) {
-        String query = """
-        SELECT 
-            e.employee_id AS employee_id, 
-            e.employee_name AS employee_name, 
-            e.technologyLevel AS knowledge, 
-            e.experience_level AS experience, 
-            e.technologyLevel AS technologyLevel
-        FROM employees e
-        WHERE e.technologyLevel LIKE ?
-        ORDER BY e.experience_level DESC
-        """;
-
-        List<Map<String,Object>> employeeSuggestions = jdbcTemplate.query(
-                query,
-                new Object[]{"%" + knowledgeKeyword + "%"},
-                (rs, rowNum) -> {
-                    Map<String, Object> response = new LinkedHashMap<>();
-                    response.put("employeeId", rs.getInt("employee_id"));
-                    response.put("employeeName", rs.getString("employee_name"));
-                    response.put("knowledge", rs.getString("knowledge"));
-                    response.put("experience", rs.getString("experience"));
-                    response.put("technologyLevel", rs.getString("technologyLevel"));
-                    return response;
-                }
-        );
-
-        // Wrap the response in CommonResponse format
-        return new CommonResponse<>(true, "Employee suggestions fetched successfully", employeeSuggestions);
-    }
 }

@@ -24,28 +24,36 @@ public class LoginController {
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResponseEntity<CommonResponse<Map<String, Object>>> processLogin(@RequestBody LoginRequest inputPayload) {
-        CommonResponse<Map<String, Object>> response = loginService.simplifiedAuthenticate(inputPayload, logger);
+        logger.info("Received login request for username: {}", inputPayload.getUsername());
+
+        CommonResponse<Map<String, Object>> response = loginService.simplifiedAuthenticate(inputPayload);
 
         if (response.isSuccess()) {
+            logger.info("Login successful for username: {}", inputPayload.getUsername());
             return ResponseEntity.ok(response);
         } else {
+            logger.warn("Login failed for username: {}", inputPayload.getUsername());
             return ResponseEntity.status(401).body(response);
         }
     }
 
     @GetMapping("/logout")
     public ResponseEntity<?> logout() {
+        logger.info("User logout request received");
         return ResponseEntity.ok().body("{ \"message\": \"Successfully logged out\" }");
     }
 
     @PostMapping("/register")
     public ResponseEntity<CommonResponse> registerUser(@RequestBody LoginRequest inputPayload) {
+        logger.info("Received registration request for username: {}", inputPayload.getUsername());
+
         CommonResponse response = loginService.registerUser(inputPayload);
+
         if (response.isSuccess()) {
-            System.out.println("Success");
+            logger.info("User registration successful for username: {}", inputPayload.getUsername());
             return ResponseEntity.ok(response);
         } else {
-            System.out.println("Failure");
+            logger.warn("User registration failed for username: {}", inputPayload.getUsername());
             return ResponseEntity.status(401).body(response);
         }
     }

@@ -68,6 +68,7 @@ public class RequestManagementController {
     }
 
 
+
     @GetMapping("/published/{providerId}")
     public ResponseEntity<List<LinkedHashMap<String, Object>>> getServiceRequest(@PathVariable Long providerId) {
         Logger logger = LoggerFactory.getLogger(getClass());
@@ -91,12 +92,12 @@ public class RequestManagementController {
 
             logger.info("Processing first API response");
             if (root1.isArray()) {
-                processServiceRequests(root1, cycleStatuses, formattedRequests);
+                processServiceRequests(root1, cycleStatuses, providerId, formattedRequests);
             }
 
             logger.info("Processing second API response");
             if (root2.isArray()) {
-                processServiceRequests(root2, cycleStatuses, formattedRequests);
+                processServiceRequests(root2, cycleStatuses, providerId, formattedRequests);
             }
 
             logger.info("Total requests processed: {}", formattedRequests.size());
@@ -108,25 +109,26 @@ public class RequestManagementController {
         }
     }
 
-
-    private static void processServiceRequests(JsonNode serviceRequests, List<String> cycleStatuses, List<LinkedHashMap<String, Object>> formattedRequests) {
+    // Make this method non-static
+    private void processServiceRequests(JsonNode serviceRequests, List<String> cycleStatuses, Long providerId, List<LinkedHashMap<String, Object>> formattedRequests) {
         for (JsonNode request : serviceRequests) {
             LinkedHashMap<String, Object> requestMap = new LinkedHashMap<>();
 
+            // Extract cycle status from the service request
             String requestCycleStatus = getField(request, "cycleStatus", "cycle") != null
                     ? getField(request, "cycleStatus", "cycle").toString().trim().toLowerCase()
                     : "";
-
+            // Validate if the request cycle matches any of the provider's cycle statuses
             List<String> lowerCaseCycleStatuses = cycleStatuses.stream()
                     .map(String::toLowerCase)
                     .map(String::trim)
                     .collect(Collectors.toList());
 
-
             if (!lowerCaseCycleStatuses.contains(requestCycleStatus)) {
                 continue;
             }
 
+            // Other fields extraction and processing
             requestMap.put("ServiceRequestId", getField(request, "ServiceRequestId", "requestID"));
             requestMap.put("agreementId", getField(request, "agreementId", "masterAgreementID"));
             requestMap.put("agreementName", getField(request, "agreementName", "masterAgreementName"));
@@ -147,18 +149,30 @@ public class RequestManagementController {
             List<LinkedHashMap<String, Object>> selectedMembersList = new ArrayList<>();
             JsonNode selectedMembers = request.has("selectedMembers") ? request.get("selectedMembers") : request.get("roleSpecific");
 
+            // Iterate through selected members
             if (selectedMembers != null && selectedMembers.isArray()) {
                 for (JsonNode member : selectedMembers) {
-                    LinkedHashMap<String, Object> memberMap = new LinkedHashMap<>();
-                    memberMap.put("domainId", member.has("domainId") ? member.get("domainId").asInt() : "NA");
-                    memberMap.put("domainName", member.has("domainName") ? member.get("domainName").asText() :
-                            (member.has("selectedDomainName") ? member.get("selectedDomainName").asText() : "NA"));
-                    memberMap.put("role", getField(member, "role", "role"));
-                    memberMap.put("level", getField(member, "level", "level"));
-                    memberMap.put("technologyLevel", getField(member, "technologyLevel", "technologyLevel"));
-                    memberMap.put("numberOfEmployee", getField(member, "numberOfEmployee", "numberOfProfilesNeeded"));
-                    memberMap.put("_id", member.has("_id") ? member.get("_id").asText() : member.get("userID").asText());
-                    selectedMembersList.add(memberMap);
+                    String domainName = getField(member, "domainName", "domainName").toString().trim();
+                    String roleName = getField(member, "role", "role").toString().trim();
+                    String level = getField(member, "level", "level").toString().trim();
+                    String technologyLevel = getField(member, "technologyLevel", "technologyLevel").toString().trim();
+
+                    // Query to get provider's roles and cycles matching role name, level, and technology level
+                    String roleOfferSql = "SELECT * FROM role_offer WHERE provider_id = ? AND domain_name = ? AND LOWER(role_name) = LOWER(?) AND LOWER(experience_level) = LOWER(?) AND LOWER(technologies_catalog) = LOWER(?) AND offer_cycle = ?";
+                    List<Map<String, Object>> roleOffers = jdbcTemplate.queryForList(roleOfferSql, providerId, domainName, roleName, level, technologyLevel, requestCycleStatus);
+
+                    // If the role offer exists for the provider and matches all criteria
+                    if (!roleOffers.isEmpty()) {
+                        LinkedHashMap<String, Object> memberMap = new LinkedHashMap<>();
+                        memberMap.put("domainId", member.has("domainId") ? member.get("domainId").asInt() : "NA");
+                        memberMap.put("domainName", domainName);
+                        memberMap.put("role", roleName);
+                        memberMap.put("level", level);
+                        memberMap.put("technologyLevel", technologyLevel);
+                        memberMap.put("numberOfEmployee", getField(member, "numberOfEmployee", "numberOfProfilesNeeded"));
+                        memberMap.put("_id", member.has("_id") ? member.get("_id").asText() : member.get("userID").asText());
+                        selectedMembersList.add(memberMap);
+                    }
                 }
             }
 
@@ -166,11 +180,28 @@ public class RequestManagementController {
             requestMap.put("representatives", getListFromField(request, "representatives", "representatives"));
             requestMap.put("notifications", getListFromField(request, "notifications", "notifications"));
             requestMap.put("createdBy", request.has("createdBy") ? request.get("createdBy").asText() : "Unknown");
-            System.out.println("CreatedBy: " + request.get("createdBy"));
 
             formattedRequests.add(requestMap);
         }
     }
+
+    // Helper method to get fields from JSON node
+    private Object getField(JsonNode node, String fieldName, String alias) {
+        return node.has(fieldName) ? node.get(fieldName).asText() : node.has(alias) ? node.get(alias).asText() : null;
+    }
+
+    // Helper method to get a list of objects from JSON node
+    private List<Object> getListFromField(JsonNode node, String fieldName, String alias) {
+        List<Object> list = new ArrayList<>();
+        JsonNode field = node.has(fieldName) ? node.get(fieldName) : node.has(alias) ? node.get(alias) : null;
+        if (field != null && field.isArray()) {
+            for (JsonNode element : field) {
+                list.add(element.asText());
+            }
+        }
+        return list;
+    }
+
 
     private static Object getField(JsonNode node, String... possibleKeys) {
         for (String key : possibleKeys) {
