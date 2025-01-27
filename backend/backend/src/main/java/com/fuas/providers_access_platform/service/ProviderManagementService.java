@@ -4,10 +4,12 @@ package com.fuas.providers_access_platform.service;
 import com.fuas.providers_access_platform.dto.CommonResponse;
 import com.fuas.providers_access_platform.dto.ProviderRequest;
 import com.fuas.providers_access_platform.model.RoleOffer;
+import com.fuas.providers_access_platform.model.User;
 import com.fuas.providers_access_platform.repository.RoleOfferRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -29,23 +31,47 @@ public class ProviderManagementService {
 
     private static final Logger logger = LoggerFactory.getLogger(ProviderManagementService.class);
 
-    public boolean updateProviderName(String providerId, String newProviderName) {
-        String updateQuery = "UPDATE providers SET provider_name = ? WHERE provider_id = ?";
+
+    public List<Map<String, Object>> getAllUsers() {
+        String query = "SELECT username, password, user_type, id, email, provider_id, provider_name, cycle_status FROM user";
         try {
-            logger.info("Attempting to update provider name for providerId: {} to new provider name: {}", providerId, newProviderName);
-            int rowsAffected = jdbcTemplate.update(updateQuery, newProviderName, providerId);
-            if (rowsAffected > 0) {
-                logger.info("Successfully updated provider name for providerId: {}", providerId);
-                return true;
-            } else {
-                logger.warn("No rows were affected for providerId: {}", providerId);
-                return false;
-            }
+            logger.info("Fetching all users from database.");
+            return jdbcTemplate.queryForList(query);
         } catch (Exception e) {
-            logger.error("Error updating provider name for providerId: {}", providerId, e);
-            return false;
+            logger.error("Error fetching users from the database: {}", e.getMessage(), e);
+            return null;
         }
     }
+
+
+    public User updateProviderDetails(String providerId, String newProviderName, String newEmail, String newPassword, String newUsername) {
+        String updateQuery = "UPDATE user SET provider_name = ?, email = ?, password = ?, username = ? WHERE provider_id = ?";
+
+        try {
+            // Update the provider details in the database
+            int rowsAffected = jdbcTemplate.update(updateQuery, newProviderName, newEmail, newPassword, newUsername, providerId);
+
+            if (rowsAffected > 0) {
+                // Successfully updated, fetch the updated user
+                String query = "SELECT * FROM user WHERE provider_id = ?";
+                User updatedUser = jdbcTemplate.queryForObject(query, new Object[]{providerId}, new BeanPropertyRowMapper<>(User.class));
+
+                // Log and return the updated user data
+                logger.info("Successfully updated provider details for providerId: {}", providerId);
+                return updatedUser;
+            } else {
+                // No rows affected, log the failure
+                logger.warn("No rows affected. Update may not have been successful for providerId: {}", providerId);
+                return null;
+            }
+        } catch (Exception e) {
+            // Log the error and return null in case of exception
+            logger.error("Error updating provider details for providerId: {}", providerId, e);
+            return null;
+        }
+    }
+
+
 
     public CommonResponse<Object> configureUser(ProviderRequest request) {
         String checkUserCountQuery = "SELECT COUNT(*) FROM provider_users WHERE provider_id = ?";

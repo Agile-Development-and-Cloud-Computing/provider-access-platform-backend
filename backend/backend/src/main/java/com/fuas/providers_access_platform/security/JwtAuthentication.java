@@ -43,6 +43,7 @@ public class JwtAuthentication extends OncePerRequestFilter {
 
                 // Store userType in the request attributes (for further processing if needed)
                 request.setAttribute("userType", userType);
+                logger.debug("UserType set in request attribute: {}", userType);
 
                 // Set authentication in the security context
                 SecurityContextHolder.getContext().setAuthentication(authToken);

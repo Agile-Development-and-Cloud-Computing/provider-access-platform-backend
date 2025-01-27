@@ -5,6 +5,7 @@ import com.fuas.providers_access_platform.dto.CommonResponse;
 import com.fuas.providers_access_platform.dto.MasterAgreementRequest;
 import com.fuas.providers_access_platform.dto.ProviderRequest;
 import com.fuas.providers_access_platform.model.RoleOffer;
+import com.fuas.providers_access_platform.model.User;
 import com.fuas.providers_access_platform.service.JwtService;
 import com.fuas.providers_access_platform.service.MasterAgreementService;
 import com.fuas.providers_access_platform.service.ProviderManagementService;
@@ -38,24 +39,48 @@ public class ProviderManagementController {
     private static final Logger logger = LoggerFactory.getLogger(ProviderManagementController.class);
 
 
+    @GetMapping("/get-user")
+    public CommonResponse getAllUsers() {
+        logger.info("Received request to get all users.");
+        List<Map<String, Object>> users = providerManagementService.getAllUsers();
+        logger.info("Successfully retrieved {} users.", users.size());
+        return new CommonResponse(true, "Users retrieved successfully", users);
+    }
+
     @PutMapping("/edit-credentials")
-    public ResponseEntity<Map<String, Object>> editProviderCredentials(@RequestBody Map<String, String> inputPayload) {
+    public ResponseEntity<CommonResponse> editProviderCredentials(@RequestBody Map<String, String> inputPayload) {
         logger.info("Received request to update provider credentials: {}", inputPayload);
 
+        // Extracting input values
         String providerId = inputPayload.get("providerId");
         String newProviderName = inputPayload.get("newProviderName");
+        String newEmail = inputPayload.get("newEmail");
+        String newPassword = inputPayload.get("newPassword");
+        String newUsername = inputPayload.get("newUsername");
 
-        boolean success = providerManagementService.updateProviderName(providerId, newProviderName);
+        CommonResponse response;
 
-        Map<String, Object> response = new HashMap<>();
-        if (success) {
+        // Input validation
+        if (providerId == null || providerId.isEmpty() ||
+                newProviderName == null || newProviderName.isEmpty() ||
+                newEmail == null || newEmail.isEmpty() ||
+                newPassword == null || newPassword.isEmpty() ||
+                newUsername == null || newUsername.isEmpty()) {
+
+            logger.warn("Invalid input data. Some fields are missing.");
+            response = new CommonResponse(false, "All fields (providerId, newProviderName, newEmail, newPassword, newUsername) are required.", null);
+            return ResponseEntity.badRequest().body(response);
+        }
+
+        // Call the service method to update provider details and fetch updated user
+        User updatedUser = providerManagementService.updateProviderDetails(providerId, newProviderName, newEmail, newPassword, newUsername);
+
+        if (updatedUser != null) {
+            response = new CommonResponse(true, "Provider credentials updated successfully.", updatedUser); // Return the updated User data
             logger.info("Provider credentials updated successfully for providerId: {}", providerId);
-            response.put("success", true);
-            response.put("message", "Provider credentials updated successfully.");
         } else {
             logger.warn("Failed to update provider credentials for providerId: {}", providerId);
-            response.put("success", false);
-            response.put("message", "Failed to update provider credentials.");
+            response = new CommonResponse(false, "Failed to update provider credentials. Please check the provided data.", null);
         }
 
         return ResponseEntity.ok(response);
@@ -80,22 +105,6 @@ public class ProviderManagementController {
     @GetMapping("/master-agreements")
     public CommonResponse getMasterAgreementsWithRoleOffer(HttpServletRequest request) {
         logger.info("Fetching master agreements with role offer");
-
-        String authHeader = request.getHeader("Authorization");
-
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
-            if (jwtService.validateToken(token)) {
-                String username = jwtService.extractUsername(token);
-                logger.info("Token is valid for user: {}", username);
-            } else {
-                logger.error("Invalid or expired token.");
-                return new CommonResponse(false, "Unauthorized", null);
-            }
-        } else {
-            logger.warn("Missing token in request");
-            return new CommonResponse(false, "Missing token", null);
-        }
 
         List<Map<String, Object>> masterAgreements = masterAgreementService.getMasterAgreementsWithRoleOffer();
         logger.info("Successfully retrieved {} master agreements", masterAgreements.size());
@@ -163,58 +172,29 @@ public class ProviderManagementController {
     }
 
     @PostMapping("/bid")
-    public ResponseEntity<Map<String, Object>> createRoleOffer(@RequestBody RoleOffer request, HttpServletRequest httpRequest) {
+    public ResponseEntity<Map<String, Object>> createRoleOffer(@RequestBody RoleOffer request) {
         logger.info("Received request to create a role offer: {}", request);
 
         Map<String, Object> response = new HashMap<>();
+        try {
+            boolean offer = masterAgreementService.updateOffer(request);
 
-        // Extract the token from the request header
-        String authHeader = httpRequest.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
-
-            // Validate the token
-            if (!jwtService.validateToken(token)) {
-                logger.error("Invalid or expired JWT token.");
+            if (!offer) {
+                logger.warn("Role offer creation failed, offer does not exist: {}", request);
                 response.put("success", false);
-                response.put("message", "Invalid or expired token.");
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-            }
-
-            // Extract username and userType from the token
-            String username = jwtService.extractUsername(token);
-            String userType = jwtService.extractUserType(token);
-
-            logger.info("Token is valid for user: {}, with userType: {}", username, userType);
-
-            // Now process the request (i.e., create role offer)
-            try {
-                boolean offer = masterAgreementService.updateOffer(request);
-
-                if (!offer) {
-                    logger.warn("Role offer creation failed, offer does not exist: {}", request);
-                    response.put("success", false);
-                    response.put("message", "The offer does not exist. Please contact the Admin.");
-                    return ResponseEntity.ok(response);
-                }
-
-                logger.info("Role Offer successfully created for: {}", request);
-                response.put("success", true);
-                response.put("message", "Role Offer successfully created");
+                response.put("message", "The offer does not exist. Please contact the Admin.");
                 return ResponseEntity.ok(response);
-            } catch (Exception e) {
-                logger.error("Error creating Role Offer", e);
-                response.put("success", false);
-                response.put("message", "Error creating Role Offer: " + e.getMessage());
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
             }
 
-        } else {
-            // If the token is not provided or invalid, return Unauthorized
-            logger.error("Missing or invalid JWT token in request");
+            logger.info("Role Offer successfully created for: {}", request);
+            response.put("success", true);
+            response.put("message", "Role Offer successfully created");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            logger.error("Error creating Role Offer", e);
             response.put("success", false);
-            response.put("message", "Missing or invalid token");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            response.put("message", "Error creating Role Offer: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 

@@ -115,8 +115,7 @@ public class RequestManagementController {
             LinkedHashMap<String, Object> requestMap = new LinkedHashMap<>();
 
             // Extract cycle status from the service request
-            String requestCycleStatus = getField(request, "cycleStatus", "cycle") != null
-                    ? getField(request, "cycleStatus", "cycle").toString().trim().toLowerCase()
+            String requestCycleStatus = getField(request, "cycleStatus", "cycle") != null ? getField(request, "cycleStatus", "cycle").toString().trim().toLowerCase()
                     : "";
             // Validate if the request cycle matches any of the provider's cycle statuses
             List<String> lowerCaseCycleStatuses = cycleStatuses.stream()
