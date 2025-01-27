@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*")
 @RequestMapping("/api/provider")
 public class ProviderManagementController {
     @Autowired
@@ -163,29 +163,59 @@ public class ProviderManagementController {
     }
 
     @PostMapping("/bid")
-    public ResponseEntity<Map<String, Object>> createRoleOffer(@RequestBody RoleOffer request) {
+    public ResponseEntity<Map<String, Object>> createRoleOffer(@RequestBody RoleOffer request, HttpServletRequest httpRequest) {
         logger.info("Received request to create a role offer: {}", request);
 
         Map<String, Object> response = new HashMap<>();
-        try {
-            boolean offer = masterAgreementService.updateOffer(request);
 
-            if (!offer) {
-                logger.warn("Role offer creation failed, offer does not exist: {}", request);
+        // Extract the token from the request header
+        String authHeader = httpRequest.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+
+            // Validate the token
+            if (!jwtService.validateToken(token)) {
+                logger.error("Invalid or expired JWT token.");
                 response.put("success", false);
-                response.put("message", "The offer does not exist. Please contact the Admin.");
-                return ResponseEntity.ok(response);
+                response.put("message", "Invalid or expired token.");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
 
-            logger.info("Role Offer successfully created for: {}", request);
-            response.put("success", true);
-            response.put("message", "Role Offer successfully created");
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            logger.error("Error creating Role Offer", e);
+            // Extract username and userType from the token
+            String username = jwtService.extractUsername(token);
+            String userType = jwtService.extractUserType(token);
+
+            logger.info("Token is valid for user: {}, with userType: {}", username, userType);
+
+            // Now process the request (i.e., create role offer)
+            try {
+                boolean offer = masterAgreementService.updateOffer(request);
+
+                if (!offer) {
+                    logger.warn("Role offer creation failed, offer does not exist: {}", request);
+                    response.put("success", false);
+                    response.put("message", "The offer does not exist. Please contact the Admin.");
+                    return ResponseEntity.ok(response);
+                }
+
+                logger.info("Role Offer successfully created for: {}", request);
+                response.put("success", true);
+                response.put("message", "Role Offer successfully created");
+                return ResponseEntity.ok(response);
+            } catch (Exception e) {
+                logger.error("Error creating Role Offer", e);
+                response.put("success", false);
+                response.put("message", "Error creating Role Offer: " + e.getMessage());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            }
+
+        } else {
+            // If the token is not provided or invalid, return Unauthorized
+            logger.error("Missing or invalid JWT token in request");
             response.put("success", false);
-            response.put("message", "Error creating Role Offer: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            response.put("message", "Missing or invalid token");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
     }
+
 }
