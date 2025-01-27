@@ -1,6 +1,7 @@
 package com.fuas.providers_access_platform.model;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 @Entity
@@ -12,17 +13,27 @@ public class RoleOffer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonProperty("role")
     private String roleName;
+    @JsonProperty("roleId")
+    private Integer roleId;
+    @JsonProperty("level")
     private String experienceLevel;
+    @JsonProperty("technologyLevel")
     private String technologiesCatalog;
-    private Integer domainId;
     private String domainName;
+    private String domainId;
     private Integer masterAgreementTypeId;
     private String masterAgreementTypeName;
     private String provider;
+    private Integer providerId;
+    @JsonProperty("price")
     private Double quotePrice;
-    private Boolean isAccepted;
+    @JsonProperty("cycle")
     private String offerCycle;
+    private Double bidPrice;
+    private Boolean isAccepted;
+
 
     public Long getId() {
         return id;
@@ -38,6 +49,14 @@ public class RoleOffer {
 
     public void setRoleName(String roleName) {
         this.roleName = roleName;
+    }
+
+    public Integer getRoleId() {
+        return roleId;
+    }
+
+    public void setRoleId(Integer roleId) {
+        this.roleId = roleId;
     }
 
     public String getExperienceLevel() {
@@ -56,20 +75,20 @@ public class RoleOffer {
         this.technologiesCatalog = technologiesCatalog;
     }
 
-    public Integer getDomainId() {
-        return domainId;
-    }
-
-    public void setDomainId(Integer domainId) {
-        this.domainId = domainId;
-    }
-
     public String getDomainName() {
         return domainName;
     }
 
     public void setDomainName(String domainName) {
         this.domainName = domainName;
+    }
+
+    public String getDomainId() {
+        return domainId;
+    }
+
+    public void setDomainId(String domainId) {
+        this.domainId = domainId;
     }
 
     public Integer getMasterAgreementTypeId() {
@@ -96,20 +115,20 @@ public class RoleOffer {
         this.provider = provider;
     }
 
+    public Integer getProviderId() {
+        return providerId;
+    }
+
+    public void setProviderId(Integer providerId) {
+        this.providerId = providerId;
+    }
+
     public Double getQuotePrice() {
         return quotePrice;
     }
 
     public void setQuotePrice(Double quotePrice) {
         this.quotePrice = quotePrice;
-    }
-
-    public Boolean getIsAccepted() {
-        return isAccepted;
-    }
-
-    public void setIsAccepted(Boolean accepted) {
-        isAccepted = accepted;
     }
 
     public String getOfferCycle() {
@@ -120,21 +139,40 @@ public class RoleOffer {
         this.offerCycle = offerCycle;
     }
 
+    public Double getBidPrice() {
+        return bidPrice;
+    }
+
+    public void setBidPrice(Double bidPrice) {
+        this.bidPrice = bidPrice;
+    }
+
+    public Boolean getisAccepted() {
+        return isAccepted;
+    }
+
+    public void setisAccepted(Boolean accepted) {
+        isAccepted = accepted;
+    }
+
     @Override
     public String toString() {
         return "RoleOffer{" +
                 "id=" + id +
                 ", roleName='" + roleName + '\'' +
+                ", roleId=" + roleId +
                 ", experienceLevel='" + experienceLevel + '\'' +
                 ", technologiesCatalog='" + technologiesCatalog + '\'' +
-                ", domainId=" + domainId +
                 ", domainName='" + domainName + '\'' +
+                ", domainId='" + domainId + '\'' +
                 ", masterAgreementTypeId=" + masterAgreementTypeId +
                 ", masterAgreementTypeName='" + masterAgreementTypeName + '\'' +
                 ", provider='" + provider + '\'' +
+                ", providerId=" + providerId +
                 ", quotePrice=" + quotePrice +
-                ", isAccepted=" + isAccepted +
                 ", offerCycle='" + offerCycle + '\'' +
+                ", bidPrice=" + bidPrice +
+                ", isAccepted=" + isAccepted +
                 '}';
     }
 }

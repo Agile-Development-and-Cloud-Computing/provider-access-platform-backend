@@ -3,79 +3,23 @@ package com.fuas.providers_access_platform.service;
 
 import com.fuas.providers_access_platform.dto.BidRequest;
 import com.fuas.providers_access_platform.dto.CommonResponse;
+import com.fuas.providers_access_platform.dto.ServiceRequest;
 import com.fuas.providers_access_platform.model.Employee;
-import com.fuas.providers_access_platform.model.RoleOffer;
-import com.fuas.providers_access_platform.repository.RoleOfferRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.*;
+import java.sql.Date;
+
 
 @Service
 public class RequestManagementService {
 
     @Autowired
-    private RoleOfferRepository roleOfferRepository;
-    @Autowired
     private JdbcTemplate jdbcTemplate;
 
-
-    public List<Map<String,Object>> getAllOffersGrouped() {
-        // Fetch all role offers from the database
-        List<RoleOffer> roleOffers = roleOfferRepository.findAll();
-
-        System.out.println("Rows"+roleOffers.toString());
-        // Group by roleName, masterAgreementTypeName, and domainId
-        Map<String, List<RoleOffer>> groupedOffers = roleOffers.stream().collect(Collectors.groupingBy(
-                offer -> offer.getRoleName() + "|" + offer.getMasterAgreementTypeName() + "|" + offer.getDomainId()
-        ));
-
-        System.out.println("Rows"+ groupedOffers.toString());
-        // Transform grouped data into List<Map<String, Object>>
-        return groupedOffers.values().stream().map(offers -> {
-            RoleOffer firstOffer = offers.get(0);
-
-            // Create a map for the main response object
-            Map<String, Object> response = new HashMap<>();
-            response.put("roleName", firstOffer.getRoleName());
-            response.put("experienceLevel", firstOffer.getExperienceLevel());
-            response.put("technologiesCatalog", firstOffer.getTechnologiesCatalog());
-            response.put("domainId", firstOffer.getDomainId());
-            response.put("domainName", firstOffer.getDomainName());
-            response.put("masterAgreementTypeId", firstOffer.getMasterAgreementTypeId());
-            response.put("masterAgreementTypeName", firstOffer.getMasterAgreementTypeName());
-
-            // Map providers as a list of maps
-            List<Map<String, Object>> providers = offers.stream().map(offer -> {
-                Map<String, Object> provider = new HashMap<>();
-                provider.put("offerId", offer.getId());
-                provider.put("providerName", offer.getProvider());
-                provider.put("quotePrice", offer.getQuotePrice());
-                provider.put("isAccepted", offer.getIsAccepted());
-                provider.put("offerCycle", offer.getOfferCycle());
-                return provider;
-            }).collect(Collectors.toList());
-
-            response.put("providers", providers);
-            return response;
-        }).collect(Collectors.toList());
-    }
-
-    public void updateOfferResponse(Long offerId, Boolean isAccepted) {
-        // Fetch the record by offerId
-        RoleOffer offer = roleOfferRepository.findById(offerId)
-                .orElseThrow(() -> new IllegalArgumentException("Offer with ID " + offerId + " not found."));
-
-        // Update the isAccepted field
-        offer.setIsAccepted(isAccepted);
-
-        // Save the updated offer back to the database
-        roleOfferRepository.save(offer);
-    }
 
     public CommonResponse placeBid(BidRequest bidRequest) {
         try {
@@ -120,4 +64,191 @@ public class RequestManagementService {
             throw new RuntimeException("Error accepting the order", e);
         }
     }
+
+
+    public CommonResponse<List<Map<String, Object>>> getServiceRequestsOffers() {
+        String sql = "SELECT DISTINCT " +
+                "sr.id AS service_request_id, " +
+                "sr.request_id, " +
+                "sr.master_agreement_id, " +
+                "sr.master_agreement_name, " +
+                "sr.task_description, " +
+                "sr.request_type, " +
+                "sr.project, " +
+                "sr.start_date, " +
+                "sr.end_date, " +
+                "sr.cycle_status, " +
+                "sr.number_of_specialists, " +
+                "sr.number_of_offers, " +
+                "sr.created_by, " +
+                "so.offer_id, " +
+                "so.provider_name, " +
+                "so.provider_id, " +
+                "so.employee_id, " +
+                "so.role, " +
+                "so.level, " +
+                "so.technology_level, " +
+                "so.location_type, " +
+                "so.domain_id, " +
+                "so.domain_name, " +
+                "so.user_id, " +
+                "so.is_approved, " +
+                "ro.bid_price " +
+                "FROM service_request sr " +
+                "LEFT JOIN service_offers so ON sr.request_id = so.request_id " +
+                "LEFT JOIN role_offer ro ON so.provider_id = ro.provider_id " +
+                "AND so.role = ro.role_name " +
+                "AND so.level = ro.experience_level " +
+                "AND so.technology_level = ro.technologies_catalog " +
+                "AND sr.master_agreement_id = ro.master_agreement_type_id " +
+                "WHERE so.is_approved = 0";
+
+        List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
+
+        if (rows.isEmpty()) {
+            return new CommonResponse<>(false, "No service requests found.", null);
+        }
+
+        // Use a map to group service requests by request_id
+        Map<String, Map<String, Object>> serviceRequestsMap = new HashMap<>();
+
+        for (Map<String, Object> row : rows) {
+            String requestId = (String) row.get("request_id");
+
+            // Get or create service request map
+            Map<String, Object> serviceRequest = serviceRequestsMap.get(requestId);
+            if (serviceRequest == null) {
+                serviceRequest = new LinkedHashMap<>();
+                serviceRequest.put("serviceRequestId", row.get("service_request_id"));
+                serviceRequest.put("requestID", requestId);
+                serviceRequest.put("masterAgreementID", row.get("master_agreement_id"));
+                serviceRequest.put("masterAgreementName", row.get("master_agreement_name"));
+                serviceRequest.put("taskDescription", row.get("task_description"));
+                serviceRequest.put("requestType", row.get("request_type"));
+                serviceRequest.put("project", row.get("project"));
+                serviceRequest.put("startDate", row.get("start_date"));
+                serviceRequest.put("endDate", row.get("end_date"));
+                serviceRequest.put("cycleStatus", row.get("cycle_status"));
+                serviceRequest.put("numberOfSpecialists", row.get("number_of_specialists"));
+                serviceRequest.put("numberOfOffers", row.get("number_of_offers"));
+                serviceRequest.put("isApproved", row.get("is_approved"));
+                serviceRequest.put("createdBy", row.get("created_by"));
+                serviceRequest.put("serviceOffers", new ArrayList<Map<String, Object>>());
+                serviceRequestsMap.put(requestId, serviceRequest);
+            }
+
+            // Prepare service offer map
+            Map<String, Object> serviceOffer = new LinkedHashMap<>();
+            serviceOffer.put("offerId", row.get("offer_id"));
+            serviceOffer.put("providerName", row.get("provider_name"));
+            serviceOffer.put("providerId", row.get("provider_id"));
+            serviceOffer.put("employeeID", row.get("employee_id"));
+            serviceOffer.put("role", row.get("role"));
+            serviceOffer.put("level", row.get("level"));
+            serviceOffer.put("technologyLevel", row.get("technology_level"));
+            serviceOffer.put("domainId", row.get("domain_id"));
+            serviceOffer.put("domainName", row.get("domain_name"));
+            serviceOffer.put("userId", row.get("user_id"));
+            serviceOffer.put("price", row.get("bid_price"));
+
+            // Add service offer only if it doesn't already exist
+            List<Map<String, Object>> serviceOffers = (List<Map<String, Object>>) serviceRequest.get("serviceOffers");
+            boolean exists = serviceOffers.stream().anyMatch(offer -> offer.get("offerId").equals(row.get("offer_id")));
+
+            if (!exists) {
+                serviceOffers.add(serviceOffer);
+            }
+        }
+
+        // Convert map to list of service requests
+        List<Map<String, Object>> serviceRequestsList = new ArrayList<>(serviceRequestsMap.values());
+
+        return new CommonResponse<>(true, "Service requests fetched successfully.", serviceRequestsList);
+    }
+
+
+
+    @Transactional
+    public void processServiceRequest(ServiceRequest request) {
+        // Insert into service_request table
+        String requestSql = "INSERT INTO service_request (request_id, master_agreement_id, master_agreement_name, " +
+                "task_description, request_type, project, start_date, end_date, cycle_status, " +
+                "number_of_specialists, number_of_offers, created_by) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        jdbcTemplate.update(requestSql,
+                request.getRequestID(),
+                request.getMasterAgreementID(),
+                request.getMasterAgreementName(),
+                request.getTaskDescription(),
+                request.getRequestType(),
+                request.getProject(),
+                Date.valueOf(request.getStartDate()),
+                Date.valueOf(request.getEndDate()),
+                request.getCycleStatus(),
+                request.getNumberOfSpecialists(),
+                request.getNumberOfOffers(),
+                request.getCreatedBy()
+        );
+
+        // Insert provider offers into service_offers table
+        for (ServiceRequest.ServiceOffer offer : request.getServiceOffers()) {
+            saveServiceOffer(offer, request.getRequestID());
+        }
+    }
+
+    private void saveServiceOffer(ServiceRequest.ServiceOffer offer, String requestID) {
+        String offerSql = "INSERT INTO service_offers (request_id, provider_id, provider_name, " +
+                "employee_id, role, level, technology_level, location_type, domain_Id, domain_name, user_id) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        jdbcTemplate.update(offerSql,
+                requestID,
+                offer.getProviderID(),
+                offer.getProviderName(),
+                offer.getEmployeeID(),
+                offer.getRole(),
+                offer.getLevel(),
+                offer.getTechnologyLevel(),
+                offer.getLocationType(),
+                offer.getDomainId(),
+                offer.getDomainName(),
+                offer.getUserId()
+        );
+    }
+
+    public String updateOfferStatus(Long offerId, String requestId, String status, String comments) {
+        // Validate status input
+
+        System.out.println("Received request to update offer status");
+        System.out.println("Offer ID: " + offerId);
+        System.out.println("Request ID: " + requestId);
+        System.out.println("Status: " + status);
+        System.out.println("Comments: " + comments);
+        if (!"Accepted".equalsIgnoreCase(status) && !"Declined".equalsIgnoreCase(status)) {
+            return "Invalid status value. Use 'Accepted' or 'Declined'.";
+        }
+
+        // SQL query to update the offer status and comments
+        String sql = "UPDATE service_offers SET is_approved = ?, comments = ? " +
+                "WHERE offer_id = ? AND request_id = ?";
+
+        try {
+            // Execute the update
+            int rowsAffected = jdbcTemplate.update(sql, status, comments,offerId, requestId);
+
+            // Check if the update was successful
+            if (rowsAffected > 0) {
+                return "Offer status updated successfully";
+            } else {
+                return "No rows updated. Please check if the offer_id and request_id are correct.";
+            }
+        } catch (Exception e) {
+            // Log and return the error message
+            return "Error updating offer status: " + e.getMessage();
+        }
+    }
+
 }
+
+

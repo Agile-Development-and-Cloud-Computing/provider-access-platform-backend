@@ -5,11 +5,9 @@ public class Employee {
     private Integer employeeId;
     private String employeeName;
     private String role;
-    private String experienceLevel;
-    private String skills;  // Could be a comma-separated list of technologies
+    private String level;
+    private String technologyLevel;  // Could be a comma-separated list of technologies
     private Integer providerId;
-    private Integer serviceId;
-    private String resumeUrl;
 
 
     public Employee(Integer employeeId, String employeeName) {
@@ -44,20 +42,20 @@ public class Employee {
         this.role = role;
     }
 
-    public String getExperienceLevel() {
-        return experienceLevel;
+    public String getLevel() {
+        return level;
     }
 
-    public void setExperienceLevel(String experienceLevel) {
-        this.experienceLevel = experienceLevel;
+    public void setLevel(String level) {
+        this.level = level;
     }
 
-    public String getSkills() {
-        return skills;
+    public String getTechnologyLevel() {
+        return technologyLevel;
     }
 
-    public void setSkills(String skills) {
-        this.skills = skills;
+    public void setTechnologyLevel(String technologyLevel) {
+        this.technologyLevel = technologyLevel;
     }
 
     public Integer getProviderId() {
@@ -68,33 +66,15 @@ public class Employee {
         this.providerId = providerId;
     }
 
-    public Integer getServiceId() {
-        return serviceId;
-    }
-
-    public void setServiceId(Integer serviceId) {
-        this.serviceId = serviceId;
-    }
-
-    public String getResumeUrl() {
-        return resumeUrl;
-    }
-
-    public void setResumeUrl(String resumeUrl) {
-        this.resumeUrl = resumeUrl;
-    }
-
     @Override
     public String toString() {
         return "Employee{" +
                 "employeeId=" + employeeId +
                 ", employeeName='" + employeeName + '\'' +
                 ", role='" + role + '\'' +
-                ", experienceLevel='" + experienceLevel + '\'' +
-                ", skills='" + skills + '\'' +
+                ", level='" + level + '\'' +
+                ", technologyLevel='" + technologyLevel + '\'' +
                 ", providerId=" + providerId +
-                ", serviceRequestId=" + serviceId +
-                ", resumeUrl='" + resumeUrl + '\'' +
                 '}';
     }
 }
