@@ -21,8 +21,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/api/service-request")
-@CrossOrigin(origins = "http://localhost:3000")
 public class RequestManagementController {
 
 
