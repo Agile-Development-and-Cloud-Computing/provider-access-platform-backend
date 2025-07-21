@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f52a403f-6f38-44f9-a098-0870e299abd3" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/com/fuas/providers_access_platform/service/ApiService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/com/fuas/providers_access_platform/service/ApiService.java" afterDir="false" />
-    </list>
+    <list default="true" id="f52a403f-6f38-44f9-a098-0870e299abd3" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -65,7 +63,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;backend.wasFacetEverAdded&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;Mandar&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;/Users/mandarkale/Documents/MyProjects/Agile-Development/provider-access-platform-backend/backend&quot;,
     &quot;project.structure.last.edited&quot;: &quot;Libraries&quot;,
@@ -117,7 +115,7 @@
       </extension>
       <method v="2">
         <option name="Make" enabled="true" />
-        <option name="ConnectionRunnerForConfigurationId" enabled="false">
+        <option name="ConnectionRunnerForConfigurationId">
           <option name="envFile" value="$PROJECT_DIR$/backend/.azure/default/.env" />
         </option>
       </method>
