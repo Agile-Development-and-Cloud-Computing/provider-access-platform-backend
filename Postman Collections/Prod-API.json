@@ -1,0 +1,402 @@
+{
+	"info": {
+		"_postman_id": "9eea256a-f8c2-451a-9e44-6ece248628e7",
+		"name": "Provider-Access_Platform",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Login API",
+			"id": "be872b7d-3982-40f2-ae40-60637b47009c",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"password123\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://access-platform.azurewebsites.net/api/login"
+			},
+			"response": []
+		},
+		{
+			"name": "Agreement Offers API",
+			"id": "3c872d00-96c0-4c5f-be14-bc203ec7eacc",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "https://access-platform.azurewebsites.net/api/agreement-offers"
+			},
+			"response": []
+		},
+		{
+			"name": "Offer Response API",
+			"id": "d4b58081-995c-4097-9280-f60cb4b0bd6c",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"offerId\": 4,\n  \"isAccepted\": true\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://access-platform.azurewebsites.net/api/post-ma-offer-response"
+			},
+			"response": []
+		},
+		{
+			"name": "RoleOffer",
+			"id": "7df35cb6-0159-4de6-bda0-54e53084c81c",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://access-platform.azurewebsites.net/api/provider/role-offers"
+			},
+			"response": []
+		},
+		{
+			"name": "edit-credentials",
+			"id": "cc83ae4c-ca68-4d4f-8097-22e6f9025b38",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"providerId\": \"105\",\n    \"newProviderName\": \"Google\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://access-platform.azurewebsites.net/api/provider/edit-credentials"
+			},
+			"response": []
+		},
+		{
+			"name": "configure-user",
+			"id": "6ae879ef-2e0e-4049-a3ad-6ee1da19ceae",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"providerId\": 101,\n    \"username\": \"Mandar Kale\",\n    \"email\": \"mandar.kale@example.com\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://access-platform.azurewebsites.net/api/provider/configure-user"
+			},
+			"response": []
+		},
+		{
+			"name": "master-agreements",
+			"id": "31d2ca98-e60e-44dd-9265-ddda0458123e",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://access-platform.azurewebsites.net/api/provider/master-agreements"
+			},
+			"response": []
+		},
+		{
+			"name": "employees/101",
+			"id": "cdbad2c0-55ce-41be-9152-b371c56730b1",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "https://access-platform.azurewebsites.net/api/employees/1001"
+			},
+			"response": []
+		},
+		{
+			"name": "employees/add",
+			"id": "bac2f8d2-cdf8-4557-b9f9-813693421037",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"employeeName\": \"Mandar\",\n  \"role\": \"Developer\",\n  \"experienceLevel\": \"Junior\",\n  \"skills\": \"Selenium, Java\",\n  \"providerId\": 106\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8080/api/employees/add"
+			},
+			"response": []
+		},
+		{
+			"name": "createOffer",
+			"id": "2af20d62-ef75-4261-97cf-7b5e7eeddb9d",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"masterAgreementTypeId\": 104,\n    \"masterAgreementTypeName\": \"Master Agreement C\",\n    \"roleName\": \"Developer\",\n    \"experienceLevel\": \"Senior\",\n    \"technologiesCatalog\": \"Java, Spring\",\n    \"domainId\": 1,\n    \"domainName\": \"IT\",\n    \"offerCycle\": \"Cycle1\",\n    \"provider\": \"Provider3\",\n    \"quotePrice\": 5000.00\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://access-platform.azurewebsites.net/api/provider/createOffer"
+			},
+			"response": []
+		},
+		{
+			"name": "bid/place",
+			"id": "19b5a784-fcd1-44d6-b209-82baaa9bcd2a",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"serviceId\": 1,\n  \"providerId\": 102,\n  \"bidAmount\": 1500.00\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://access-platform.azurewebsites.net/api/bid/add"
+			},
+			"response": []
+		},
+		{
+			"name": "upload",
+			"id": "01550b64-35d0-4744-b255-18c0ff7737a6",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"serviceRequestId\": 1,\n  \"employeeId\": 1,\n  \"resumeUrl\": \"http://example.com/resumes/john_doe.pdf\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://access-platform.azurewebsites.net/api/employees/upload"
+			},
+			"response": []
+		},
+		{
+			"name": "Employee Knowledge",
+			"id": "929efa8c-614f-4597-8371-185cc0104b54",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/employees/suggestions?knowledgeKeyword=Python",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"employees",
+						"suggestions"
+					],
+					"query": [
+						{
+							"key": "knowledgeKeyword",
+							"value": "Python"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "accept-order",
+			"id": "23e43eed-3e5f-49c5-840f-3c72069a28f4",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"serviceId\": 2,\n    \"employeeId\": 2\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://access-platform.azurewebsites.net/api/accept-order"
+			},
+			"response": []
+		},
+		{
+			"name": "Register API",
+			"id": "59a4e0c6-0583-432d-b9c8-7d10a38b002f",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"test2\",\n    \"password\": \"password123333\",\n    \"email\":\"test222@gmail.com\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://access-platform.azurewebsites.net0/api/register"
+			},
+			"response": []
+		},
+		{
+			"name": "bid",
+			"id": "139b3c01-7579-4b1c-b31b-b0d8f0b7e79f",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"domainName\": \"IT Security\",\n  \"domainId\": 1,\n  \"role\": \"Administrator\",\n  \"roleId\":10001,\n  \"level\": \"Junior\",\n  \"masterAgreementTypeName\":\"Master Agreement A\",\n  \"masterAgreementTypeId\": 102,\n  \"provider\": \"Provider1\",\n  \"bidPrice\": 200\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://access-platform.azurewebsites.net/api/provider/bid"
+			},
+			"response": []
+		},
+		{
+			"name": "create-offer",
+			"id": "5135f650-eb38-4562-9938-fae79d2afb62",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"masterAgreementTypeId\": 108,\n    \"masterAgreementTypeName\": \"Agreement B\",\n    \"validFrom\": \"2024-01-01\",\n    \"validUntil\": \"2024-12-31\",\n    \"status\": \"open\",\n    \"createdAt\": \"2025-01-06\",\n    \"domains\": [\n        {\n            \"domainId\": 1,\n            \"domainName\": \"IT\",\n            \"roleOffer\": [\n                {\n                    \"roleName\": \"Developer\",\n                    \"experienceLevel\": \"Senior\",\n                    \"technologiesCatalog\": \"Java, Spring Boot\",\n                    \"quotePrice\": 600,\n                    \"offerCycle\": null,\n                    \"providerName\": null\n                }\n            ]\n        },\n        {\n            \"domainId\": 2,\n            \"domainName\": \"Finance\",\n            \"roleOffer\": [\n                {\n                    \"roleName\": \"Data Analyst\",\n                    \"experienceLevel\": \"Mid-Level\",\n                    \"technologiesCatalog\": \"SQL, Python, Tableau\",\n                    \"quotePrice\": 600,\n                    \"providerName\": null,\n                    \"offerCycle\": null\n                },\n                {\n                    \"roleName\": \"Financial Consultant\",\n                    \"experienceLevel\": \"Senior\",\n                    \"technologiesCatalog\": \"Finance Modelling, Excel, R\",\n                    \"quotePrice\": 600,\n                    \"providerName\": null,\n                    \"offerCycle\": null\n                }\n            ]\n        },\n        {\n            \"domainId\": 3,\n            \"domainName\": \"Healthcare\",\n            \"roleOffer\": [\n                {\n                    \"roleName\": \"Medical Software Engineer\",\n                    \"experienceLevel\": \"Junior\",\n                    \"technologiesCatalog\": \"C++, JavaScript, HL7\",\n                    \"providerName\": null,\n                    \"quotePrice\": 600,\n                    \"offerCycle\": null\n                },\n                {\n                    \"roleName\": \"Healthcare Analyst\",\n                    \"experienceLevel\": \"Mid-Level\",\n                    \"technologiesCatalog\": \"Python, SAS, Clinical Data\",\n                    \"providerName\": null,\n                    \"quotePrice\": 600,\n                    \"offerCycle\": null\n                }\n            ]\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8080/api/provider/create-offer"
+			},
+			"response": []
+		},
+		{
+			"name": "New Request",
+			"id": "dc8a252c-0481-4671-904d-3b59c1b25f3d",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJUeXBlIjoiQWRtaW4iLCJpYXQiOjE3Mzc2NzYxMjcsImV4cCI6MTczNzc2MjUyN30.2uuBeWfPW5GNy0b_j5wbbo_LbhD5iRLXRvH9HX0ROTk"
+					}
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"employeeName\": \"Mandar\",\n    \"role\": \"Developer\",\n    \"level\": \"Senior\",\n    \"technologyLevel\": \"Rare\",\n    \"providerId\": 1002\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8080/api/employees/update/58"
+			},
+			"response": []
+		}
+	]
+}
