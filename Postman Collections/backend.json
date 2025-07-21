@@ -1,0 +1,245 @@
+{
+	"info": {
+		"_postman_id": "bc78d047-4a8d-4615-bbff-11a1aa10f33d",
+		"name": "MyLocalTest-API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "http://localhost:8080/api/login",
+			"id": "c6467cad-0be6-468e-a6a4-70b9984a4e85",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"mandar\",\n    \"password\": \"password456\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8080/api/login"
+			},
+			"response": []
+		},
+		{
+			"name": "ServiceRequest",
+			"id": "04ba0028-5f0b-42b0-983c-932e167e3776",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:8080/api/service-request/1002"
+			},
+			"response": []
+		},
+		{
+			"name": "Master Agreement",
+			"id": "0ce23d38-1924-4c5a-94d1-0e1412d0dc43",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {}
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYW5kYXIiLCJ1c2VyVHlwZSI6IlVzZXIiLCJpYXQiOjE3MzczNTg0MzYsImV4cCI6MTczNzQ0NDgzNn0.Li-S3uovxg_ve0VJGSzRBTXoo5KyTUr-1lShgenRrhM",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": "http://localhost:8080/api/provider/master-agreements"
+			},
+			"response": []
+		},
+		{
+			"name": "Role Offer",
+			"id": "4875292b-cec2-4637-8b13-b6f9347140d5",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "Employee",
+			"id": "d9382d7e-ac7b-46f0-8019-7b2246697734",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "New Request",
+			"id": "9e0df151-c92c-4545-975c-4caf57607c4f",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "Submitted Service Request",
+			"id": "2e3d4663-6c78-4a2b-903e-d52d89b7fef8",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"requestID\": \"a9cf2538-d01a-4f2c-a9a1-ef36d064fe4c\",\n  \"masterAgreementID\": 109,\n  \"masterAgreementName\": \"Master Agreement I\",\n  \"taskDescription\": \"Have to set a firewall so that DDos attack prevented\",\n  \"requestType\": \"multi\",\n  \"project\": \"DDos Attack Prevention\",\n  \"startDate\": \"2025-01-21\",\n  \"endDate\": \"2025-01-31\",\n  \"cycleStatus\": \"cycle_one\",\n  \"selectedDomainName\": \"IT Security\",\n  \"numberOfSpecialists\": 4,\n  \"numberOfOffers\": 2,\n  \"isApproved\": true,\n  \"serviceOffers\": [\n    {\n      \"providerID\": \"101\",\n      \"providerName\": \"Security Solutions Ltd\",\n      \"employeeID\": \"1\",\n      \"role\": \"Administrator\",\n      \"level\": \"Senior\",\n      \"technologyLevel\": \"Common\",\n      \"locationType\": \"onsite\"\n    },\n    {\n      \"providerID\": \"101\",\n      \"providerName\": \"Security Solutions Ltd\",\n      \"employeeID\": \"2\",\n      \"role\": \"Administrator\",\n      \"level\": \"Senior\",\n      \"technologyLevel\": \"Common\",\n      \"locationType\": \"onsite\"\n    },\n    {\n      \"providerID\": \"102\",\n      \"providerName\": \"Cyber Defense Inc\",\n      \"employeeID\": \"3\",\n      \"role\": \"Administrator\",\n      \"level\": \"Senior\",\n      \"technologyLevel\": \"Common\",\n      \"locationType\": \"onsite\"\n    },\n    {\n      \"providerID\": \"102\",\n      \"providerName\": \"Cyber Defense Inc\",\n      \"employeeID\": \"4\",\n      \"role\": \"Administrator\",\n      \"level\": \"Senior\",\n      \"technologyLevel\": \"Common\",\n      \"locationType\": \"onsite\"\n    }\n  ]\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8080/api/service-request/submit"
+			},
+			"response": []
+		},
+		{
+			"name": "Service-Offers",
+			"id": "5ee82be9-46e3-44a1-848e-d7926e79f4f8",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqb25hc2JlY2tlciIsInVzZXJUeXBlIjoiQWRtaW4iLCJpYXQiOjE3Mzc4MDcxODQsImV4cCI6MTczNzg5MzU4NH0.a7VjNGnu_NQBeTT23v4FZk9mZodNatvVqGaQsEe_lCY"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"url": "https://access-platform.azurewebsites.net/api/service-request/offers"
+			},
+			"response": []
+		},
+		{
+			"name": "Update Status",
+			"id": "c9dea1d0-3b01-4d3f-a634-de2f4d3cc36f",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYW5kYXIiLCJ1c2VyVHlwZSI6IlVzZXIiLCJpYXQiOjE3Mzc1OTY4MjQsImV4cCI6MTczNzY4MzIyNH0.k7kM6G4x5sATIBmn1N6dW_jvAy2fWj62wj5GcGDWv_k"
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"offerId\": 21,\n    \"requestID\": \"a9cf2538-d01a-4f2c-a9a1-ef36d064fe4c\",\n    \"isApproved\": \"Declined\",\n    \"comments\": \"Bhai Muje Pasand nahi Aaya\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:8080/api/service-request/update-status"
+			},
+			"response": []
+		},
+		{
+			"name": "New Request",
+			"id": "72f6aec1-ba67-4f5d-a07a-b4c505b1d2dc",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": ""
+					}
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n  {\n    \"offerId\": 81,\n    \"cycle\": \"cycle_two\",\n    \"isAccepted\": true\n  },\n  {\n    \"offerId\": 82,\n    \"cycle\": \"cycle_two\",\n    \"isAccepted\": true\n  }\n]\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://access-platform-test.azurewebsites.net/api/provider/offer-response"
+			},
+			"response": []
+		},
+		{
+			"name": "New Request",
+			"id": "863ec35d-6d11-4064-887e-103c9a8ce943",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "Master Agreement",
+			"id": "de909904-330a-42a2-b2a8-3ef9097d1ea8",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "New Request",
+			"id": "8ece9f49-a9af-43e5-94c4-50e59693cea6",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		}
+	]
+}
