@@ -10,6 +10,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -49,20 +50,20 @@ public class ApiService {
     public void fetchAndInsertAgreements() {
 
         logger.info("Starting scheduled task: fetchAndInsertAgreements at {}", LocalDateTime.now());
+        try {
+            // Fetch agreements from external API
+            List<MasterAgreementRequest> agreements = masterAgreementWebClient.get()
+                    .uri("/all-open-agreements")
+                    .retrieve()
+                    .bodyToFlux(MasterAgreementRequest.class)
+                    .collectList()
+                    .block();
 
-        // Fetch agreements from external API
-        List<MasterAgreementRequest> agreements = masterAgreementWebClient.get()
-                .uri("/all-open-agreements")
-                .retrieve()
-                .bodyToFlux(MasterAgreementRequest.class)
-                .collectList()
-                .block();
 
+            if (agreements != null && !agreements.isEmpty()) {
+                logger.info("Fetched {} agreements from the external API.", agreements.size());
 
-        if (agreements != null && !agreements.isEmpty()) {
-            logger.info("Fetched {} agreements from the external API.", agreements.size());
-
-            agreements.forEach(agreement -> {
+                agreements.forEach(agreement -> {
                     if (!isAgreementExists(agreement.getMasterAgreementTypeId())) {
                         validFromFormatted = formatDateForSQL(agreement.getValidFrom());
                         validUntilFormatted = formatDateForSQL(agreement.getValidUntil());
@@ -82,9 +83,9 @@ public class ApiService {
                         agreement.getDomains().forEach(domain -> {
                             domain.getRoleOffer().forEach(roleOffer -> {
 
-                                logger.debug("Inserting role offer for agreement ID {}: {}",agreement.getMasterAgreementTypeId(), roleOffer);
+                                logger.debug("Inserting role offer for agreement ID {}: {}", agreement.getMasterAgreementTypeId(), roleOffer);
 
-                                        String offerSql = "INSERT INTO offer (role_id, domain_id, domain_name, role_name, experience_level, technologies_catalog, quote_price, offer_date, master_agreement_type_name, status, master_agreement_type_id) " +
+                                String offerSql = "INSERT INTO offer (role_id, domain_id, domain_name, role_name, experience_level, technologies_catalog, quote_price, offer_date, master_agreement_type_name, status, master_agreement_type_id) " +
                                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                                 jdbcTemplate.update(offerSql,
                                         roleOffer.getRoleId(),
@@ -100,10 +101,16 @@ public class ApiService {
                                         agreement.getMasterAgreementTypeId());
                             });
                         });
-                        logger.info("Agreement with ID {} successfully inserted into the database.", agreement.getMasterAgreementTypeId());                    }
+                        logger.info("Agreement with ID {} successfully inserted into the database.", agreement.getMasterAgreementTypeId());
+                    }
                 });
-        } else {
-            logger.warn("No agreements found in the external API response.");
+            } else {
+                logger.warn("No agreements found in the external API response.");
+            }
+        }catch (WebClientResponseException ex) {
+            logger.error("API returned error response: {} - {}", ex.getRawStatusCode(), ex.getResponseBodyAsString());
+        } catch (Exception ex) {
+            logger.error("Unexpected error while fetching agreements: {}", ex.getMessage(), ex);
         }
     }
 
@@ -170,8 +177,10 @@ public class ApiService {
             } else {
                 logger.warn("No providers found in the API response.");
             }
-        } catch (Exception e) {
-            logger.error("Error while fetching and inserting providers: {}", e.getMessage());
+        } catch (WebClientResponseException ex) {
+            logger.error("API returned error response for providers: {} - {}", ex.getRawStatusCode(), ex.getResponseBodyAsString());
+        } catch (Exception ex) {
+            logger.error("Unexpected error while fetching providers: {}", ex.getMessage(), ex);
         }
     }
 
