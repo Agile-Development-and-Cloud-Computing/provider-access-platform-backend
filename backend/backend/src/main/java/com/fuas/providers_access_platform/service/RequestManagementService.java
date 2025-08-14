@@ -1,17 +1,22 @@
 package com.fuas.providers_access_platform.service;
 
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fuas.providers_access_platform.dto.BidRequest;
 import com.fuas.providers_access_platform.dto.CommonResponse;
 import com.fuas.providers_access_platform.dto.ServiceRequest;
 import com.fuas.providers_access_platform.model.Employee;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 import java.sql.Date;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -19,6 +24,12 @@ public class RequestManagementService {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    private static final String API_URL_1 = "https://service-management-backend-production.up.railway.app/api/service-requests/published";
+    private static final String API_URL_2 = "https://servicerequestapi-d0g3ezftcggucbev.germanywestcentral-01.azurewebsites.net/api/ServiceRequest/ServiceRequestList";
 
 
     public CommonResponse placeBid(BidRequest bidRequest) {
@@ -247,6 +258,119 @@ public class RequestManagementService {
             // Log and return the error message
             return "Error updating offer status: " + e.getMessage();
         }
+    }
+
+    public List<LinkedHashMap<String, Object>> getServiceRequests(Long providerId) throws Exception {
+        // 1. Get provider's cycle statuses
+        String cycleStatusSql = "SELECT offer_cycle FROM role_offer WHERE provider_id = ?";
+        List<String> cycleStatuses = jdbcTemplate.queryForList(cycleStatusSql, new Object[]{providerId}, String.class);
+
+        // 2. Call external APIs
+        ResponseEntity<String> response1 = restTemplate.getForEntity(API_URL_1, String.class);
+        ResponseEntity<String> response2 = restTemplate.getForEntity(API_URL_2, String.class);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode root1 = objectMapper.readTree(response1.getBody());
+        JsonNode root2 = objectMapper.readTree(response2.getBody());
+
+        List<LinkedHashMap<String, Object>> formattedRequests = new ArrayList<>();
+        if (root1.isArray()) {
+            processServiceRequests(root1, cycleStatuses, providerId, formattedRequests);
+        }
+        if (root2.isArray()) {
+            processServiceRequests(root2, cycleStatuses, providerId, formattedRequests);
+        }
+
+        return formattedRequests;
+    }
+
+    private void processServiceRequests(JsonNode serviceRequests, List<String> cycleStatuses, Long providerId, List<LinkedHashMap<String, Object>> formattedRequests) {
+        for (JsonNode request : serviceRequests) {
+            LinkedHashMap<String, Object> requestMap = new LinkedHashMap<>();
+
+            // Extract cycle status from the service request
+            String requestCycleStatus = getField(request, "cycleStatus", "cycle") != null ? getField(request, "cycleStatus", "cycle").toString().trim().toLowerCase()
+                    : "";
+            // Validate if the request cycle matches any of the provider's cycle statuses
+            List<String> lowerCaseCycleStatuses = cycleStatuses.stream()
+                    .map(String::toLowerCase)
+                    .map(String::trim)
+                    .collect(Collectors.toList());
+
+            if (!lowerCaseCycleStatuses.contains(requestCycleStatus)) {
+                continue;
+            }
+
+            // Other fields extraction and processing
+            requestMap.put("ServiceRequestId", getField(request, "ServiceRequestId", "requestID"));
+            requestMap.put("agreementId", getField(request, "agreementId", "masterAgreementID"));
+            requestMap.put("agreementName", getField(request, "agreementName", "masterAgreementName"));
+            requestMap.put("taskDescription", getField(request, "taskDescription", "taskDescription"));
+            requestMap.put("project", getField(request, "project", "project"));
+            requestMap.put("begin", getField(request, "begin", "startDate"));
+            requestMap.put("end", getField(request, "end", "endDate"));
+            requestMap.put("amountOfManDays", getField(request, "amountOfManDays", "totalManDays"));
+            requestMap.put("location", getField(request, "location", "location"));
+            requestMap.put("type", getField(request, "type", "requestType"));
+            requestMap.put("cycleStatus", getField(request, "cycleStatus", "cycle"));
+            requestMap.put("numberOfSpecialists", getField(request, "numberOfSpecialists","numberOfSpecialists"));
+            requestMap.put("consumer", getField(request, "consumer", "consumer"));
+            requestMap.put("informationForProviderManager", getField(request, "informationForProviderManager", "providerManagerInfo"));
+            requestMap.put("locationType", getField(request, "locationType", "locationType"));
+            requestMap.put("numberOfOffers", getField(request, "numberOfOffers","numberOfOffers"));
+
+            List<LinkedHashMap<String, Object>> selectedMembersList = new ArrayList<>();
+            JsonNode selectedMembers = request.has("selectedMembers") ? request.get("selectedMembers") : request.get("roleSpecific");
+
+            // Iterate through selected members
+            if (selectedMembers != null && selectedMembers.isArray()) {
+                for (JsonNode member : selectedMembers) {
+                    String domainName = getField(member, "domainName", "domainName").toString().trim();
+                    String roleName = getField(member, "role", "role").toString().trim();
+                    String level = getField(member, "level", "level").toString().trim();
+                    String technologyLevel = getField(member, "technologyLevel", "technologyLevel").toString().trim();
+
+                    // Query to get provider's roles and cycles matching role name, level, and technology level
+                    String roleOfferSql = "SELECT * FROM role_offer WHERE provider_id = ? AND domain_name = ? AND LOWER(role_name) = LOWER(?) AND LOWER(experience_level) = LOWER(?) AND LOWER(technologies_catalog) = LOWER(?) AND offer_cycle = ?";
+                    List<Map<String, Object>> roleOffers = jdbcTemplate.queryForList(roleOfferSql, providerId, domainName, roleName, level, technologyLevel, requestCycleStatus);
+
+                    // If the role offer exists for the provider and matches all criteria
+                    if (!roleOffers.isEmpty()) {
+                        LinkedHashMap<String, Object> memberMap = new LinkedHashMap<>();
+                        memberMap.put("domainId", member.has("domainId") ? member.get("domainId").asInt() : "NA");
+                        memberMap.put("domainName", domainName);
+                        memberMap.put("role", roleName);
+                        memberMap.put("level", level);
+                        memberMap.put("technologyLevel", technologyLevel);
+                        memberMap.put("numberOfEmployee", getField(member, "numberOfEmployee", "numberOfProfilesNeeded"));
+                        memberMap.put("_id", member.has("_id") ? member.get("_id").asText() : member.get("userID").asText());
+                        selectedMembersList.add(memberMap);
+                    }
+                }
+            }
+
+            requestMap.put("selectedMembers", selectedMembersList);
+            requestMap.put("representatives", getListFromField(request, "representatives", "representatives"));
+            requestMap.put("notifications", getListFromField(request, "notifications", "notifications"));
+            requestMap.put("createdBy", request.has("createdBy") ? request.get("createdBy").asText() : "Unknown");
+
+            formattedRequests.add(requestMap);
+        }
+    }
+
+    private Object getField(JsonNode node, String fieldName, String alias) {
+        return node.has(fieldName) ? node.get(fieldName).asText() : node.has(alias) ? node.get(alias).asText() : null;
+    }
+
+    private List<Object> getListFromField(JsonNode node, String fieldName, String alias) {
+        List<Object> list = new ArrayList<>();
+        JsonNode field = node.has(fieldName) ? node.get(fieldName) : node.has(alias) ? node.get(alias) : null;
+        if (field != null && field.isArray()) {
+            for (JsonNode element : field) {
+                list.add(element.asText());
+            }
+        }
+        return list;
     }
 
 }
