@@ -41,11 +41,6 @@ public class BidRequest {
 
     @Override
     public String toString() {
-        return "BidRequest{" +
-                "serviceId=" + serviceId +
-                ", providerId=" + providerId +
-                ", bidAmount=" + bidAmount +
-                ", employeeId=" + employeeId +
-                '}';
+        return STR."BidRequest{serviceId=\{serviceId}, providerId=\{providerId}, bidAmount=\{bidAmount}, employeeId=\{employeeId}}";
     }
 }

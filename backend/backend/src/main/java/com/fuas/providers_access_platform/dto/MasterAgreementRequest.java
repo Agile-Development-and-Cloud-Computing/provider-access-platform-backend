@@ -78,14 +78,6 @@ public class MasterAgreementRequest {
 
     @Override
     public String toString() {
-        return "MasterAgreementRequest{" +
-                ", masterAgreementTypeId=" + masterAgreementTypeId +
-                ", masterAgreementTypeName='" + masterAgreementTypeName + '\'' +
-                ", validFrom='" + validFrom + '\'' +
-                ", validUntil='" + validUntil + '\'' +
-                ", status='" + status + '\'' +
-                ", createdAt='" + createdAt + '\'' +
-                ", domains=" + domains +
-                '}';
+        return STR."MasterAgreementRequest{, masterAgreementTypeId=\{masterAgreementTypeId}, masterAgreementTypeName='\{masterAgreementTypeName}', validFrom='\{validFrom}', validUntil='\{validUntil}', status='\{status}', createdAt='\{createdAt}', domains=\{domains}}";
     }
 }

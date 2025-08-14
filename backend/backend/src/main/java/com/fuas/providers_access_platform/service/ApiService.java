@@ -45,8 +45,8 @@ public class ApiService {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    // Scheduled task runs every 15 minutes
-    @Scheduled(fixedRate = 30000)  // 120000 ms = 2 minutes
+    // Scheduled task runs at 8 in Morning
+    @Scheduled(cron = "0 0 8 * * ?")  // 120000 ms = 2 minutes
     public void fetchAndInsertAgreements() {
 
         logger.info("Starting scheduled task: fetchAndInsertAgreements at {}", LocalDateTime.now());
@@ -62,55 +62,88 @@ public class ApiService {
 
             if (agreements != null && !agreements.isEmpty()) {
                 logger.info("Fetched {} agreements from the external API.", agreements.size());
-
-                agreements.forEach(agreement -> {
-                    if (!isAgreementExists(agreement.getMasterAgreementTypeId())) {
-                        validFromFormatted = formatDateForSQL(agreement.getValidFrom());
-                        validUntilFormatted = formatDateForSQL(agreement.getValidUntil());
-                        createdAtFormatted = formatDateForSQL(agreement.getCreatedAt());
-
-                        logger.debug("Inserting agreement: {}", agreement);
-
-                        String masterAgreementSql = "INSERT INTO master_agreement_types (master_agreement_type_id, master_agreement_type_name, valid_from, valid_until, status, created_at) VALUES (?, ?, ?, ?, ?, ?)";
-                        jdbcTemplate.update(masterAgreementSql,
-                                agreement.getMasterAgreementTypeId(),
-                                agreement.getMasterAgreementTypeName(),
-                                validFromFormatted,
-                                validUntilFormatted,
-                                agreement.getStatus(),
-                                createdAtFormatted);
-
-                        agreement.getDomains().forEach(domain -> {
-                            domain.getRoleOffer().forEach(roleOffer -> {
-
-                                logger.debug("Inserting role offer for agreement ID {}: {}", agreement.getMasterAgreementTypeId(), roleOffer);
-
-                                String offerSql = "INSERT INTO offer (role_id, domain_id, domain_name, role_name, experience_level, technologies_catalog, quote_price, offer_date, master_agreement_type_name, status, master_agreement_type_id) " +
-                                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                                jdbcTemplate.update(offerSql,
-                                        roleOffer.getRoleId(),
-                                        domain.getDomainId(),
-                                        domain.getDomainName(),
-                                        roleOffer.getRoleName(),
-                                        roleOffer.getExperienceLevel(),
-                                        roleOffer.getTechnologiesCatalog(),
-                                        roleOffer.getQuotePrice(),
-                                        createdAtFormatted,
-                                        agreement.getMasterAgreementTypeName(),
-                                        agreement.getStatus(),
-                                        agreement.getMasterAgreementTypeId());
-                            });
-                        });
-                        logger.info("Agreement with ID {} successfully inserted into the database.", agreement.getMasterAgreementTypeId());
-                    }
-                });
+                processAgreementData(agreements);
             } else {
                 logger.warn("No agreements found in the external API response.");
             }
         }catch (WebClientResponseException ex) {
             logger.error("API returned error response: {} - {}", ex.getRawStatusCode(), ex.getResponseBodyAsString());
+            insertFallbackAgreements();
         } catch (Exception ex) {
             logger.error("Unexpected error while fetching agreements: {}", ex.getMessage(), ex);
+            insertFallbackAgreements();
+        }
+    }
+
+    private void processAgreementData(List<MasterAgreementRequest> agreements) {
+        agreements.forEach(agreement -> {
+            if (!isAgreementExists(agreement.getMasterAgreementTypeId())) {
+                validFromFormatted = formatDateForSQL(agreement.getValidFrom());
+                validUntilFormatted = formatDateForSQL(agreement.getValidUntil());
+                createdAtFormatted = formatDateForSQL(agreement.getCreatedAt());
+
+                logger.debug("Inserting agreement: {}", agreement);
+
+                String masterAgreementSql = "INSERT INTO master_agreement_types (master_agreement_type_id, master_agreement_type_name, valid_from, valid_until, status, created_at) VALUES (?, ?, ?, ?, ?, ?)";
+                jdbcTemplate.update(masterAgreementSql,
+                        agreement.getMasterAgreementTypeId(),
+                        agreement.getMasterAgreementTypeName(),
+                        validFromFormatted,
+                        validUntilFormatted,
+                        agreement.getStatus(),
+                        createdAtFormatted);
+
+                agreement.getDomains().forEach(domain -> {
+                    domain.getRoleOffer().forEach(roleOffer -> {
+                        logger.debug("Inserting role offer for agreement ID {}: {}", agreement.getMasterAgreementTypeId(), roleOffer);
+
+                        String offerSql = "INSERT INTO offer (role_id, domain_id, domain_name, role_name, experience_level, technologies_catalog, quote_price, offer_date, master_agreement_type_name, status, master_agreement_type_id) " +
+                                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                        jdbcTemplate.update(offerSql,
+                                roleOffer.getRoleId(),
+                                domain.getDomainId(),
+                                domain.getDomainName(),
+                                roleOffer.getRoleName(),
+                                roleOffer.getExperienceLevel(),
+                                roleOffer.getTechnologiesCatalog(),
+                                roleOffer.getQuotePrice(),
+                                createdAtFormatted,
+                                agreement.getMasterAgreementTypeName(),
+                                agreement.getStatus(),
+                                agreement.getMasterAgreementTypeId());
+                    });
+                });
+
+                logger.info("Agreement with ID {} successfully inserted into the database.", agreement.getMasterAgreementTypeId());
+            }
+        });
+    }
+
+    private void insertFallbackAgreements() {
+        logger.warn("Inserting fallback master agreement data due to API failure...");
+
+        try {
+            int fallbackId = 101;
+            if (!isAgreementExists(fallbackId)) {
+                String validFrom = "2025-01-01 00:00:00";
+                String validUntil = "2025-12-31 23:59:59";
+                String createdAt = "2025-01-01 00:00:00";
+
+                String masterAgreementSql = "INSERT INTO master_agreement_types (master_agreement_type_id, master_agreement_type_name, valid_from, valid_until, status, created_at) VALUES (?, ?, ?, ?, ?, ?)";
+                jdbcTemplate.update(masterAgreementSql,
+                        fallbackId, "Fallback Agreement", validFrom, validUntil, "ACTIVE", createdAt);
+
+                String offerSql = "INSERT INTO offer (role_id, domain_id, domain_name, role_name, experience_level, technologies_catalog, quote_price, offer_date, master_agreement_type_name, status, master_agreement_type_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                jdbcTemplate.update(offerSql,
+                        1001, 2001, "IT Security", "ISMS Manager", "Senior", "Security,Compliance", 1000.00,
+                        createdAt, "Fallback Agreement", "ACTIVE", fallbackId);
+
+                logger.info("Fallback master agreement inserted successfully.");
+            } else {
+                logger.info("Fallback agreement already exists. Skipping insertion.");
+            }
+        } catch (Exception e) {
+            logger.error("Error inserting fallback master agreement: {}", e.getMessage(), e);
         }
     }
 
@@ -136,8 +169,8 @@ public class ApiService {
     }
 
 
-    // Scheduled task to fetch provider details every 15 minutes (900000 ms)
-    @Scheduled(fixedRate = 30000)
+    // Scheduled task to fetch provider details at morning at 8
+    @Scheduled(cron = "0 0 8 * * ?")
     public void fetchAndInsertProviders() {
         logger.info("Starting to fetch providers from external API...");
 
@@ -151,36 +184,40 @@ public class ApiService {
 
             if (providers != null && !providers.isEmpty()) {
                 logger.info("Fetched {} providers from API.", providers.size());
-
-                for (Map<String, Object> provider : providers) {
-                    // Safely extract providerId from the map and cast
-                    Integer providerId = provider.get("providerId") != null ? ((Number) provider.get("providerId")).intValue() : null;
-                    if (providerId != null && !isProviderExists(providerId)) {
-                        // Insert provider directly inside this method using Map values
-                        String sql = "INSERT INTO user (username, password, user_type, email, provider_id, provider_name, cycle_status) " +
-                                "VALUES (?, ?, ?, ?, ?, ?, ?)";
-
-                        jdbcTemplate.update(sql,
-                                provider.get("username"),
-                                provider.get("password"),
-                                provider.get("role"),  // "userType" key from the Map
-                                provider.get("emailId"),
-                                providerId,
-                                provider.get("name"),  // "providerName" key from the Map
-                                "ACTIVE");
-
-                        logger.info("Successfully inserted provider with ID {}.", providerId);
-                    } else {
-                        logger.warn("Provider with ID {} already exists or providerId is null. Skipping...", providerId);
-                    }
-                }
+                processProviderData(providers);
             } else {
                 logger.warn("No providers found in the API response.");
             }
         } catch (WebClientResponseException ex) {
             logger.error("API returned error response for providers: {} - {}", ex.getRawStatusCode(), ex.getResponseBodyAsString());
+            insertFallbackProviders();
         } catch (Exception ex) {
             logger.error("Unexpected error while fetching providers: {}", ex.getMessage(), ex);
+            insertFallbackProviders();
+        }
+    }
+
+    private void processProviderData(List<Map<String, Object>> providers) {
+        for (Map<String, Object> provider : providers) {
+            Integer providerId = provider.get("providerId") != null ? ((Number) provider.get("providerId")).intValue() : null;
+
+            if (providerId != null && !isProviderExists(providerId)) {
+                String sql = "INSERT INTO user (username, password, user_type, email, provider_id, provider_name, cycle_status) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+                jdbcTemplate.update(sql,
+                        provider.get("username"),
+                        provider.get("password"),
+                        provider.get("role"),  // "userType"
+                        provider.get("emailId"),
+                        providerId,
+                        provider.get("name"),  // "providerName"
+                        "ACTIVE");
+
+                logger.info("Successfully inserted provider with ID {}.", providerId);
+            } else {
+                logger.warn("Provider with ID {} already exists or providerId is null. Skipping...", providerId);
+            }
         }
     }
 
@@ -190,6 +227,25 @@ public class ApiService {
         return count != null && count > 0;
     }
 
+    private void insertFallbackProviders() {
+        logger.warn("Inserting fallback provider data due to API failure...");
+
+        try {
+            Integer fallbackProviderId = 8888;
+            if (!isProviderExists(fallbackProviderId)) {
+                String sql = "INSERT INTO user (username, password, user_type, email, provider_id, provider_name, cycle_status) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                jdbcTemplate.update(sql,
+                        "fallback_user", "password123", "PROVIDER", "fallback@example.com",
+                        fallbackProviderId, "Fallback Provider", "ACTIVE");
+
+                logger.info("Fallback provider inserted successfully.");
+            } else {
+                logger.info("Fallback provider already exists. Skipping insertion.");
+            }
+        } catch (Exception e) {
+            logger.error("Error inserting fallback provider: {}", e.getMessage(), e);
+        }
+    }
 
 
 }

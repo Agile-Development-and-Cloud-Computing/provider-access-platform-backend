@@ -56,12 +56,7 @@ public class CommonResponse<T> {
 
     @Override
     public String toString() {
-        return "CommonResponse{" +
-                "success=" + success +
-                ", message='" + message + '\'' +
-                ", timestamp=" + timestamp +
-                ", data=" + data +
-                '}';
+        return STR."CommonResponse{success=\{success}, message='\{message}', timestamp=\{timestamp}, data=\{data}}";
     }
 
 
